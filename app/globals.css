@@ -1,0 +1,125 @@
+@import "tailwindcss" source(none);
+@source "../";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-ethra-bone: var(--ethra-bone);
+  --color-ethra-cream: var(--ethra-cream);
+  --color-ethra-stone: var(--ethra-stone);
+  --color-ethra-warm: var(--ethra-warm);
+  --color-ethra-black: var(--ethra-black);
+  --color-ethra-charcoal: var(--ethra-charcoal);
+  --color-ethra-sand: var(--ethra-sand);
+  --color-ethra-gold: var(--ethra-gold);
+  --color-ethra-gold-light: var(--ethra-gold-light);
+
+  --font-serif: "Playfair Display", serif;
+  --font-display: "Montserrat", sans-serif;
+  --font-sans: "Inter", sans-serif;
+}
+
+:root {
+  --radius: 0.25rem;
+
+  --ethra-bone: oklch(0.982 0.005 85);
+  --ethra-cream: oklch(0.955 0.012 75);
+  --ethra-stone: oklch(0.665 0.008 80);
+  --ethra-warm: oklch(0.795 0.012 75);
+  --ethra-black: oklch(0.18 0.003 80);
+  --ethra-charcoal: oklch(0.28 0.003 80);
+  --ethra-sand: oklch(0.79 0.06 75);
+  --ethra-gold: oklch(0.66 0.105 80);
+  --ethra-gold-light: oklch(0.78 0.085 80);
+
+  --background: var(--ethra-bone);
+  --foreground: var(--ethra-black);
+  --card: oklch(1 0 0);
+  --card-foreground: var(--ethra-black);
+  --popover: oklch(1 0 0);
+  --popover-foreground: var(--ethra-black);
+  --primary: var(--ethra-black);
+  --primary-foreground: var(--ethra-bone);
+  --secondary: var(--ethra-cream);
+  --secondary-foreground: var(--ethra-black);
+  --muted: var(--ethra-cream);
+  --muted-foreground: var(--ethra-stone);
+  --accent: var(--ethra-cream);
+  --accent-foreground: var(--ethra-black);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.984 0.003 247.858);
+  --border: oklch(0.88 0.008 80);
+  --input: oklch(0.88 0.008 80);
+  --ring: var(--ethra-stone);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+}
+
+@layer utilities {
+  .font-serif { font-family: var(--font-serif); }
+  .font-display { font-family: var(--font-display); }
+  .font-sans { font-family: var(--font-sans); }
+
+  .gold-line {
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      oklch(0.66 0.105 80 / 0.5),
+      transparent
+    );
+  }
+
+  .tracking-luxury {
+    letter-spacing: 0.32em;
+  }
+}
