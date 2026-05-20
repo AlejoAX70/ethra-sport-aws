@@ -1,0 +1,71 @@
+"use client";
+
+import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
+import { ShopLayout } from "@/components/ethra/ShopLayout";
+import { StorefrontError } from "@/components/ethra/StorefrontError";
+import { categoriesQueryOptions } from "@/lib/storefront/queries";
+import { StorefrontApiError } from "@/lib/storefront/client";
+
+export function ColeccionesContent() {
+  const { data, isPending, isError, error } = useQuery(categoriesQueryOptions());
+
+  const errorMessage =
+    error instanceof StorefrontApiError
+      ? error.message
+      : error instanceof Error
+        ? error.message
+        : "No se pudieron cargar las categorías.";
+
+  return (
+    <ShopLayout>
+      <section className="mx-auto max-w-[1400px] px-6 py-16 md:px-10 md:py-24">
+        <h1 className="font-serif text-4xl md:text-5xl text-ethra-black mb-14">Colecciones</h1>
+
+        {isPending ? (
+          <div className="grid grid-cols-1 gap-1 md:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="aspect-[4/5] w-full animate-pulse bg-ethra-cream" />
+            ))}
+          </div>
+        ) : null}
+
+        {isError ? <StorefrontError message={errorMessage} /> : null}
+
+        {data && data.categories.length === 0 ? (
+          <p className="text-center font-display text-sm text-ethra-stone py-16">
+            Aún no hay categorías publicadas.
+          </p>
+        ) : null}
+
+        {data && data.categories.length > 0 ? (
+          <div className="grid grid-cols-1 gap-1 md:grid-cols-3">
+            {data.categories.map((cat) => (
+              <div key={cat.id}>
+                <Link
+                  href={`/colecciones/${cat.id}`}
+                  className="group relative block aspect-[4/5] overflow-hidden"
+                >
+                  <img
+                    src={cat.imageUrl}
+                    alt={cat.name}
+                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                  <div className="absolute bottom-0 left-0 p-8">
+                    <h2 className="font-serif text-3xl md:text-4xl text-ethra-bone">{cat.name}</h2>
+                    {cat.subcategories.length > 0 ? (
+                      <p className="mt-2 font-display text-[10px] tracking-luxury uppercase text-ethra-bone/80">
+                        {cat.subcategories.length} subcategorías
+                      </p>
+                    ) : null}
+                  </div>
+                </Link>
+              </div>
+            ))}
+          </div>
+        ) : null}
+      </section>
+    </ShopLayout>
+  );
+}

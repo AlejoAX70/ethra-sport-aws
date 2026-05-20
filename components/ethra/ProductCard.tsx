@@ -15,7 +15,7 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
   return (
     <article className="group">
       <Link href={`/producto/${product.id}`} className="block">
-        <ProductCardGallery images={images} alt={product.name} priority={priority} />
+        <ProductCardGallery urls={images} alt={product.name} priority={priority} />
         <div className="mt-5 flex items-start justify-between gap-4">
           <h3 className="font-serif text-lg text-ethra-black">{product.name}</h3>
           <span className="font-display text-xs tracking-wider text-ethra-charcoal whitespace-nowrap">
