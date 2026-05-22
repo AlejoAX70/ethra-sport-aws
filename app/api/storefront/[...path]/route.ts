@@ -1,21 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const HOP_BY_HOP_HEADERS = [
-  "connection",
-  "content-length",
-  "host",
-  "keep-alive",
-  "proxy-authenticate",
-  "proxy-authorization",
-  "te",
-  "trailer",
-  "transfer-encoding",
-  "upgrade",
-];
+export const runtime = "nodejs";
+
+const TENANT_KEY_HEADER = "X-Tenant-Key";
 
 function getStorefrontEnv() {
-  const baseUrl = process.env.STOREFRONT_API_URL?.replace(/\/$/, "");
-  const tenantKey = process.env.TENANT_API_KEY;
+  const baseUrl = process.env.STOREFRONT_API_URL?.trim().replace(/\/$/, "");
+  const tenantKey = process.env.TENANT_API_KEY?.trim();
 
   if (!baseUrl || !tenantKey) {
     throw new Error("Missing STOREFRONT_API_URL or TENANT_API_KEY");
@@ -24,14 +15,10 @@ function getStorefrontEnv() {
   return { baseUrl, tenantKey };
 }
 
-function createProxyHeaders(request: NextRequest, tenantKey: string) {
-  const headers = new Headers(request.headers);
-
-  for (const header of HOP_BY_HOP_HEADERS) {
-    headers.delete(header);
-  }
-
-  headers.set("X-Tenant-Key", tenantKey);
+function createProxyHeaders(tenantKey: string) {
+  const headers = new Headers();
+  headers.set("Accept", "application/json");
+  headers.set(TENANT_KEY_HEADER, tenantKey);
   return headers;
 }
 
@@ -46,10 +33,16 @@ async function proxyStorefrontRequest(
     const incomingUrl = new URL(request.url);
     const storefrontUrl = `${baseUrl}${splat}${incomingUrl.search}`;
     const method = request.method.toUpperCase();
-    const init: RequestInit & { duplex?: "half" } = {
-      method,
-      headers: createProxyHeaders(request, tenantKey),
-    };
+
+    const headers = createProxyHeaders(tenantKey);
+    if (!headers.get(TENANT_KEY_HEADER)) {
+      return NextResponse.json(
+        { message: `${TENANT_KEY_HEADER} no configurado en el proxy` },
+        { status: 500 },
+      );
+    }
+
+    const init: RequestInit & { duplex?: "half" } = { method, headers };
 
     if (method !== "GET" && method !== "HEAD") {
       init.body = request.body;
@@ -68,10 +61,11 @@ async function proxyStorefrontRequest(
     });
   } catch (error) {
     console.error("[storefront proxy] request failed:", error);
-    return NextResponse.json(
-      { message: "Storefront proxy failed" },
-      { status: 500 },
-    );
+    const message =
+      error instanceof Error && error.message.includes("TENANT_API_KEY")
+        ? "TENANT_API_KEY no disponible en el servidor. Revisa .env.local (local) o Amplify Environment variables + amplify.yml."
+        : "Storefront proxy failed";
+    return NextResponse.json({ message }, { status: 500 });
   }
 }
 

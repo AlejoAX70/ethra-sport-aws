@@ -1,3 +1,4 @@
+import { getCategories } from "@/lib/storefront/api";
 import { ColeccionesContent } from "./ColeccionesContent";
 
 export const metadata = {
@@ -5,6 +6,8 @@ export const metadata = {
   description: "Explora las colecciones de ropa deportiva de lujo silencioso de Ethra Sport.",
 };
 
-export default function ColeccionesPage() {
-  return <ColeccionesContent />;
+export default async function ColeccionesPage() {
+  const { categories } = await getCategories().catch(() => ({ categories: [] }));
+
+  return <ColeccionesContent categories={categories} />;
 }

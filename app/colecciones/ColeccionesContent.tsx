@@ -1,46 +1,24 @@
-"use client";
-
 import Link from "next/link";
-import { useQuery } from "@tanstack/react-query";
 import { ShopLayout } from "@/components/ethra/ShopLayout";
-import { StorefrontError } from "@/components/ethra/StorefrontError";
-import { categoriesQueryOptions } from "@/lib/storefront/queries";
-import { StorefrontApiError } from "@/lib/storefront/client";
+import type { StorefrontCategory } from "@/lib/storefront/types";
 
-export function ColeccionesContent() {
-  const { data, isPending, isError, error } = useQuery(categoriesQueryOptions());
+interface Props {
+  categories: StorefrontCategory[];
+}
 
-  const errorMessage =
-    error instanceof StorefrontApiError
-      ? error.message
-      : error instanceof Error
-        ? error.message
-        : "No se pudieron cargar las categorías.";
-
+export function ColeccionesContent({ categories }: Props) {
   return (
     <ShopLayout>
       <section className="mx-auto max-w-[1400px] px-6 py-16 md:px-10 md:py-24">
         <h1 className="font-serif text-4xl md:text-5xl text-ethra-black mb-14">Colecciones</h1>
 
-        {isPending ? (
-          <div className="grid grid-cols-1 gap-1 md:grid-cols-3">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="aspect-[4/5] w-full animate-pulse bg-ethra-cream" />
-            ))}
-          </div>
-        ) : null}
-
-        {isError ? <StorefrontError message={errorMessage} /> : null}
-
-        {data && data.categories.length === 0 ? (
+        {categories.length === 0 ? (
           <p className="text-center font-display text-sm text-ethra-stone py-16">
             Aún no hay categorías publicadas.
           </p>
-        ) : null}
-
-        {data && data.categories.length > 0 ? (
+        ) : (
           <div className="grid grid-cols-1 gap-1 md:grid-cols-3">
-            {data.categories.map((cat) => (
+            {categories.map((cat) => (
               <div key={cat.id}>
                 <Link
                   href={`/colecciones/${cat.id}`}
@@ -64,7 +42,7 @@ export function ColeccionesContent() {
               </div>
             ))}
           </div>
-        ) : null}
+        )}
       </section>
     </ShopLayout>
   );

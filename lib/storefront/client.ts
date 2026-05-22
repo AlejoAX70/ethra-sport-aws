@@ -14,8 +14,8 @@ function getStorefrontConfig() {
     return { baseUrl: "/api/storefront", tenantKey: undefined };
   }
 
-  const baseUrl = process.env.STOREFRONT_API_URL?.replace(/\/$/, "");
-  const tenantKey = process.env.TENANT_API_KEY;
+  const baseUrl = process.env.STOREFRONT_API_URL?.trim().replace(/\/$/, "");
+  const tenantKey = process.env.TENANT_API_KEY?.trim();
 
   if (!baseUrl) {
     throw new Error(

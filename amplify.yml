@@ -1,0 +1,24 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm ci
+    build:
+      commands:
+        - |
+          if [ -z "$STOREFRONT_API_URL" ] || [ -z "$TENANT_API_KEY" ]; then
+            echo "ERROR: Configura STOREFRONT_API_URL y TENANT_API_KEY en Amplify > Environment variables."
+            exit 1
+          fi
+          echo "STOREFRONT_API_URL=$STOREFRONT_API_URL" >> .env.production
+          echo "TENANT_API_KEY=$TENANT_API_KEY" >> .env.production
+        - npm run build
+  artifacts:
+    baseDirectory: .next
+    files:
+      - "**/*"
+  cache:
+    paths:
+      - node_modules/**/*
+      - .next/cache/**/*

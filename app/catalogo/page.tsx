@@ -1,5 +1,6 @@
-import { Suspense } from "react";
 import { ShopLayout } from "@/components/ethra/ShopLayout";
+import { getCatalog, getCategories, searchCatalog } from "@/lib/storefront/api";
+import type { StorefrontPagination, StorefrontProduct } from "@/lib/storefront/types";
 import { CatalogoContent } from "./CatalogoContent";
 
 export const metadata = {
@@ -7,27 +8,52 @@ export const metadata = {
   description: "Explora el catálogo completo de Ethra Sport.",
 };
 
-export default function CatalogoPage() {
+interface Props {
+  searchParams: Promise<{ page?: string; categoryId?: string; q?: string }>;
+}
+
+const emptyPagination: StorefrontPagination = {
+  page: 1,
+  limit: 20,
+  total: 0,
+  totalPages: 0,
+  hasNext: false,
+  hasPrev: false,
+};
+
+export default async function CatalogoPage({ searchParams }: Props) {
+  const sp = await searchParams;
+  const page = Number(sp.page) || 1;
+  const categoryId = sp.categoryId || undefined;
+  const q = sp.q?.trim() || "";
+
+  const categoriesRes = await getCategories().catch(() => ({ categories: [] }));
+
+  let products: StorefrontProduct[] = [];
+  let pagination: StorefrontPagination | null = null;
+
+  if (q) {
+    const searchRes = await searchCatalog(q, 20).catch(() => ({ products: [] }));
+    products = searchRes.products;
+  } else {
+    const catalogRes = await getCatalog({ page, limit: 20, categoryId }).catch(() => ({
+      products: [],
+      pagination: emptyPagination,
+    }));
+    products = catalogRes.products;
+    pagination = catalogRes.pagination;
+  }
+
   return (
     <ShopLayout>
-      <Suspense
-        fallback={
-          <div className="mx-auto max-w-[1400px] px-6 md:px-10 py-10">
-            <div className="h-12 w-48 bg-ethra-cream rounded animate-pulse mb-10" />
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-10">
-              {[...Array(8)].map((_, i) => (
-                <div key={i} className="space-y-3 animate-pulse">
-                  <div className="aspect-[4/5] bg-ethra-cream" />
-                  <div className="h-4 w-2/3 bg-ethra-cream rounded" />
-                  <div className="h-3 w-1/3 bg-ethra-cream rounded" />
-                </div>
-              ))}
-            </div>
-          </div>
-        }
-      >
-        <CatalogoContent />
-      </Suspense>
+      <CatalogoContent
+        categories={categoriesRes.categories}
+        products={products}
+        pagination={pagination}
+        page={page}
+        categoryId={categoryId}
+        q={q}
+      />
     </ShopLayout>
   );
 }
