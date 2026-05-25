@@ -39,6 +39,21 @@ export interface StorefrontTax {
   percentage: number;
 }
 
+export interface StorefrontVariantColor {
+  hex: string;
+  name: string;
+}
+
+export type StorefrontVariantAttributeValue = string | StorefrontVariantColor;
+
+export interface StorefrontProductVariant {
+  id: string;
+  sku: string;
+  attributes: Record<string, StorefrontVariantAttributeValue>;
+  stock: number;
+  priceOverride: number | StorefrontPrice | null;
+}
+
 export interface StorefrontProduct {
   id: string;
   name: string;
@@ -47,6 +62,7 @@ export interface StorefrontProduct {
   images: StorefrontProductImages;
   price: StorefrontPrice;
   taxes: StorefrontTax[];
+  variants?: StorefrontProductVariant[];
   inStock: boolean;
   totalStock: number;
   createdAt: string;

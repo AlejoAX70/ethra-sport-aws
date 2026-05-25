@@ -18,11 +18,13 @@ export interface CategoryPageContext {
 }
 
 export function formatStorefrontPrice(price: StorefrontPrice): string {
+  const hasDecimals = !Number.isInteger(price.amount);
   try {
     return new Intl.NumberFormat("es-MX", {
       style: "currency",
       currency: price.currency,
-      maximumFractionDigits: 0,
+      minimumFractionDigits: hasDecimals ? 2 : 0,
+      maximumFractionDigits: hasDecimals ? 2 : 0,
     }).format(price.amount);
   } catch {
     return `${price.currency} ${price.amount.toLocaleString("es-MX")}`;

@@ -1,26 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { StorefrontProduct } from "@/lib/storefront/types";
 import { formatStorefrontPrice, getProductGalleryUrls } from "@/lib/storefront/format";
-
-/** Datos de demostración hasta que el API exponga tallas y colores */
-const MOCK_SIZES = [
-  { id: "xs", label: "XS", available: true },
-  { id: "s", label: "S", available: true },
-  { id: "m", label: "M", available: true },
-  { id: "l", label: "L", available: true },
-  { id: "xl", label: "XL", available: false },
-  { id: "xxl", label: "XXL", available: false },
-  { id: "xxxl", label: "XXXL", available: false },
-] as const;
-
-const MOCK_COLORS = [
-  { id: "bone", name: "Hueso", hex: "#E8E4DC" },
-  { id: "stone", name: "Piedra", hex: "#8A8580" },
-  { id: "black", name: "Negro", hex: "#1A1A1A" },
-] as const;
+import {
+  getDefaultVariantSelection,
+  getVariantDisplayPrice,
+  parseProductVariants,
+} from "@/lib/storefront/variants";
 
 interface ProductDetailViewProps {
   product: StorefrontProduct;
@@ -28,19 +16,94 @@ interface ProductDetailViewProps {
 
 export function ProductDetailView({ product }: ProductDetailViewProps) {
   const images = getProductGalleryUrls(product);
-  const displayImages = images.length > 0 ? images : [product.images.primary || product.images.basePath].filter(Boolean);
+  const displayImages =
+    images.length > 0
+      ? images
+      : [product.images.primary || product.images.basePath].filter(Boolean);
+
+  const parsedVariants = useMemo(
+    () => parseProductVariants(product.variants ?? []),
+    [product.variants],
+  );
+
+  const defaultSelection = useMemo(
+    () => getDefaultVariantSelection(parsedVariants),
+    [parsedVariants],
+  );
 
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const [selectedSize, setSelectedSize] = useState<string>("xs");
-  const [selectedColor, setSelectedColor] = useState<string>(MOCK_COLORS[0].id);
+  const [selectedColorId, setSelectedColorId] = useState<string | null>(defaultSelection.colorId);
+  const [selectedSizeId, setSelectedSizeId] = useState<string | null>(defaultSelection.sizeId);
 
-  const breadcrumbParts = [
-    product.category?.name,
-    product.subcategory?.name,
-  ].filter(Boolean) as string[];
+  useEffect(() => {
+    setSelectedColorId(defaultSelection.colorId);
+    setSelectedSizeId(defaultSelection.sizeId);
+  }, [product.id, defaultSelection.colorId, defaultSelection.sizeId]);
 
-  const selectedSizeData = MOCK_SIZES.find((s) => s.id === selectedSize);
-  const canPurchase = product.inStock && (selectedSizeData?.available ?? false);
+  const selectedVariant = parsedVariants.hasVariants
+    ? parsedVariants.findVariant(selectedColorId, selectedSizeId)
+    : null;
+
+  const displayPrice = getVariantDisplayPrice(product.price, selectedVariant);
+
+  const canPurchase = parsedVariants.hasVariants
+    ? Boolean(selectedVariant && selectedVariant.stock > 0)
+    : product.inStock;
+
+  useEffect(() => {
+    console.log("[ProductDetailView] producto completo (backend):", product);
+    console.log("[ProductDetailView] fotos:", {
+      primary: product.images.primary,
+      basePath: product.images.basePath,
+      gallery: product.images.images,
+      urlsUsadas: displayImages,
+    });
+    console.log("[ProductDetailView] variantes (tallas, colores, stock):", product.variants);
+    console.log("[ProductDetailView] opciones parseadas:", {
+      tallas: parsedVariants.sizes,
+      colores: parsedVariants.colors,
+    });
+    console.log("[ProductDetailView] precio e inventario:", {
+      price: product.price,
+      taxes: product.taxes,
+      inStock: product.inStock,
+      totalStock: product.totalStock,
+    });
+  }, [product, displayImages, parsedVariants]);
+
+  useEffect(() => {
+    console.log("[ProductDetailView] selección actual:", {
+      colorId: selectedColorId,
+      sizeId: selectedSizeId,
+      variante: selectedVariant,
+      precioMostrado: displayPrice,
+      puedeComprar: canPurchase,
+    });
+  }, [selectedColorId, selectedSizeId, selectedVariant, displayPrice, canPurchase]);
+
+  const stockLabel = parsedVariants.hasVariants
+    ? selectedVariant
+      ? selectedVariant.stock > 0
+        ? `${selectedVariant.stock} unidades disponibles`
+        : "Agotado en esta combinación"
+      : "Selecciona talla y color"
+    : product.inStock
+      ? `${product.totalStock} unidades disponibles`
+      : "Agotado";
+
+  const handleColorChange = (colorId: string) => {
+    setSelectedColorId(colorId);
+    if (selectedSizeId && !parsedVariants.isSizeAvailable(selectedSizeId, colorId)) {
+      const nextSize = parsedVariants.sizes.find((size) =>
+        parsedVariants.isSizeAvailable(size.id, colorId),
+      );
+      setSelectedSizeId(nextSize?.id ?? null);
+    }
+  };
+
+  const breadcrumbParts = [product.category?.name, product.subcategory?.name].filter(
+    Boolean,
+  ) as string[];
 
   return (
     <div className="mx-auto max-w-[1400px] px-4 py-8 md:px-8 md:py-12 lg:px-10">
@@ -140,65 +203,76 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
           </h1>
 
           <p className="mt-5 font-sans text-lg font-semibold text-ethra-black md:text-xl">
-            {formatStorefrontPrice(product.price)}
+            {formatStorefrontPrice(displayPrice)}
           </p>
 
-          {/* Tallas (hardcoded) */}
-          <div className="mt-8">
-            <p className="font-display text-[11px] tracking-[0.12em] uppercase text-ethra-charcoal">
-              Talla
-            </p>
-            <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-2">
-              {MOCK_SIZES.map((size) => (
-                <li key={size.id}>
-                  <button
-                    type="button"
-                    disabled={!size.available}
-                    onClick={() => size.available && setSelectedSize(size.id)}
-                    className={`font-display text-[13px] tracking-wide transition-colors ${
-                      !size.available
-                        ? "cursor-not-allowed text-ethra-stone/50 line-through decoration-ethra-stone/60"
-                        : selectedSize === size.id
-                          ? "font-semibold text-ethra-black underline underline-offset-4"
-                          : "text-ethra-charcoal hover:text-ethra-black"
-                    }`}
-                  >
-                    {size.label}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Colores (hardcoded) */}
-          <div className="mt-8">
-            <p className="font-display text-[11px] tracking-[0.12em] uppercase text-ethra-charcoal">
-              Colores
-            </p>
-            <div className="mt-3 flex gap-3">
-              {MOCK_COLORS.map((color) => (
-                <button
-                  key={color.id}
-                  type="button"
-                  onClick={() => setSelectedColor(color.id)}
-                  aria-label={color.name}
-                  aria-pressed={selectedColor === color.id}
-                  className={`h-9 w-9 border-2 transition-all ${
-                    selectedColor === color.id
-                      ? "border-ethra-black ring-1 ring-ethra-black ring-offset-2 ring-offset-ethra-bone"
-                      : "border-ethra-stone/30 hover:border-ethra-charcoal"
-                  }`}
-                  style={{ backgroundColor: color.hex }}
-                />
-              ))}
+          {parsedVariants.sizes.length > 0 ? (
+            <div className="mt-8">
+              <p className="font-display text-[11px] tracking-[0.12em] uppercase text-ethra-charcoal">
+                Talla
+              </p>
+              <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-2">
+                {parsedVariants.sizes.map((size) => {
+                  const available = parsedVariants.isSizeAvailable(size.id, selectedColorId);
+                  return (
+                    <li key={size.id}>
+                      <button
+                        type="button"
+                        disabled={!available}
+                        onClick={() => available && setSelectedSizeId(size.id)}
+                        className={`font-display text-[13px] tracking-wide transition-colors ${
+                          !available
+                            ? "cursor-not-allowed text-ethra-stone/50 line-through decoration-ethra-stone/60"
+                            : selectedSizeId === size.id
+                              ? "font-semibold text-ethra-black underline underline-offset-4"
+                              : "text-ethra-charcoal hover:text-ethra-black"
+                        }`}
+                      >
+                        {size.label}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
-          </div>
+          ) : null}
 
-          <p className="mt-6 font-display text-[11px] text-ethra-stone">
-            {product.inStock
-              ? `${product.totalStock} unidades disponibles`
-              : "Agotado"}
-          </p>
+          {parsedVariants.colors.length > 0 ? (
+            <div className="mt-8">
+              <p className="font-display text-[11px] tracking-[0.12em] uppercase text-ethra-charcoal">
+                Colores
+              </p>
+              <div className="mt-3 flex flex-wrap gap-3">
+                {parsedVariants.colors.map((color) => {
+                  const available = parsedVariants.isColorAvailable(color.id, selectedSizeId);
+                  return (
+                    <button
+                      key={color.id}
+                      type="button"
+                      disabled={!available}
+                      onClick={() => available && handleColorChange(color.id)}
+                      aria-label={color.name}
+                      aria-pressed={selectedColorId === color.id}
+                      title={available ? color.name : `${color.name} — agotado`}
+                      className={`h-9 w-9 border-2 transition-all disabled:cursor-not-allowed disabled:opacity-40 ${
+                        selectedColorId === color.id
+                          ? "border-ethra-black ring-1 ring-ethra-black ring-offset-2 ring-offset-ethra-bone"
+                          : "border-ethra-stone/30 hover:border-ethra-charcoal"
+                      }`}
+                      style={{ backgroundColor: color.hex }}
+                    />
+                  );
+                })}
+              </div>
+              {selectedColorId ? (
+                <p className="mt-2 font-display text-[11px] text-ethra-stone">
+                  {parsedVariants.colors.find((color) => color.id === selectedColorId)?.name}
+                </p>
+              ) : null}
+            </div>
+          ) : null}
+
+          <p className="mt-6 font-display text-[11px] text-ethra-stone">{stockLabel}</p>
 
           <div className="mt-8 flex flex-col gap-3">
             <button
