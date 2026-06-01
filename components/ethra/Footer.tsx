@@ -1,12 +1,18 @@
 import Link from "next/link";
+import { EthraLogo } from "./EthraLogo";
+import { ETHRA_BRAND } from "@/lib/brand";
 
 export function Footer() {
   return (
     <footer className="bg-ethra-bone border-t border-border/60 py-16">
       <div className="mx-auto max-w-[1400px] px-6 text-center">
-        <h2 className="font-serif text-2xl md:text-3xl text-ethra-black tracking-wide">
-          ETHRA <span className="text-ethra-stone">·</span> SPORT
-        </h2>
+        <Link
+          href="/"
+          className="inline-flex flex-col items-center gap-3 transition-opacity hover:opacity-90"
+          aria-label={`${ETHRA_BRAND.name} — Inicio`}
+        >
+          <EthraLogo variant="footer" />
+        </Link>
 
         <div className="gold-line mt-8 mb-8 mx-auto max-w-md" />
 

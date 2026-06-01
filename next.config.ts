@@ -5,6 +5,10 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
+        hostname: "dvt8oixa5wj3m.cloudfront.net",
+      },
+      {
+        protocol: "https",
         hostname: "app-imagenes-stock-ecommerce.s3.us-east-2.amazonaws.com",
       },
     ],

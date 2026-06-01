@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { IMAGE_CDN_BASE } from "@/lib/cdn";
+
+const HERO_IMAGE = `${IMAGE_CDN_BASE}/proveedores/4c39cb9b-109b-4000-93d1-08ecd15073b0/productos/26392545-8d5a-4d60-8c2a-343c92cc5f90/tercera.webp`;
 
 export function Hero() {
   const imgRef = useRef<HTMLImageElement>(null);
@@ -33,7 +36,7 @@ export function Hero() {
     <section className="relative h-screen min-h-[720px] w-full overflow-hidden">
       <img
         ref={imgRef}
-        src="https://app-imagenes-stock-ecommerce.s3.us-east-2.amazonaws.com/proveedores/4c39cb9b-109b-4000-93d1-08ecd15073b0/productos/26392545-8d5a-4d60-8c2a-343c92cc5f90/tercera.jpg"
+        src={HERO_IMAGE}
         alt="Ethra Sport"
         loading="eager"
         className="absolute inset-0 h-full w-full object-cover transition-all duration-[1400ms] ease-out"

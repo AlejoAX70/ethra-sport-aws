@@ -3,16 +3,18 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 
-const HERO_IMAGE = "https://app-imagenes-stock-ecommerce.s3.us-east-2.amazonaws.com/proveedores/4c39cb9b-109b-4000-93d1-08ecd15073b0/temporales/IMG_2310-Editar.jpg";
-const FIRST_EDITORIAL_IMAGE = "https://app-imagenes-stock-ecommerce.s3.us-east-2.amazonaws.com/proveedores/4c39cb9b-109b-4000-93d1-08ecd15073b0/temporales/IMG_2280-Editar.jpg";
-const SECOND_EDITORIAL_IMAGE = "https://app-imagenes-stock-ecommerce.s3.us-east-2.amazonaws.com/proveedores/4c39cb9b-109b-4000-93d1-08ecd15073b0/temporales/IMG_2352-Editar.jpg";
-const THIRD_EDITORIAL_IMAGE = "https://app-imagenes-stock-ecommerce.s3.us-east-2.amazonaws.com/proveedores/4c39cb9b-109b-4000-93d1-08ecd15073b0/temporales/IMG_1964-Editar.jpg";
-const FOURTH_EDITORIAL_IMAGE = "https://app-imagenes-stock-ecommerce.s3.us-east-2.amazonaws.com/proveedores/4c39cb9b-109b-4000-93d1-08ecd15073b0/temporales/IMG_1793-Editar.jpg";
-const FIFTH_EDITORIAL_IMAGE = "https://app-imagenes-stock-ecommerce.s3.us-east-2.amazonaws.com/proveedores/4c39cb9b-109b-4000-93d1-08ecd15073b0/temporales/IMG_1288-Editar.jpg";
-const SIXTH_EDITORIAL_IMAGE = "https://app-imagenes-stock-ecommerce.s3.us-east-2.amazonaws.com/proveedores/4c39cb9b-109b-4000-93d1-08ecd15073b0/temporales/IMG_1192-Editar.jpg";
-const SEVENTH_EDITORIAL_IMAGE = "https://app-imagenes-stock-ecommerce.s3.us-east-2.amazonaws.com/proveedores/4c39cb9b-109b-4000-93d1-08ecd15073b0/temporales/IMG_2301-Editar.jpg";
-const EIGHTH_EDITORIAL_IMAGE = "https://app-imagenes-stock-ecommerce.s3.us-east-2.amazonaws.com/proveedores/4c39cb9b-109b-4000-93d1-08ecd15073b0/temporales/IMG_1397-Editar.jpg";
-const NINTH_EDITORIAL_IMAGE = "https://app-imagenes-stock-ecommerce.s3.us-east-2.amazonaws.com/proveedores/4c39cb9b-109b-4000-93d1-08ecd15073b0/temporales/IMG_1260-Editar.jpg";
+import { IMAGE_CDN_BASE } from "@/lib/cdn";
+
+const HERO_IMAGE = `${IMAGE_CDN_BASE}/proveedores/4c39cb9b-109b-4000-93d1-08ecd15073b0/temporales/9ed8075b-3d9e-46e1-b98d-df16b24c54c9.webp`;
+const FIRST_EDITORIAL_IMAGE = `${IMAGE_CDN_BASE}/proveedores/4c39cb9b-109b-4000-93d1-08ecd15073b0/temporales/b7e21df6-bffb-438a-a3e9-47ba94b153d3.webp`;
+const SECOND_EDITORIAL_IMAGE = `${IMAGE_CDN_BASE}/proveedores/4c39cb9b-109b-4000-93d1-08ecd15073b0/temporales/17932048-7275-479b-bf66-a148fbecc09f.webp`;
+const THIRD_EDITORIAL_IMAGE = `${IMAGE_CDN_BASE}/proveedores/4c39cb9b-109b-4000-93d1-08ecd15073b0/temporales/ffea1b44-d722-4133-be87-9bb05314f514.webp`;
+const FOURTH_EDITORIAL_IMAGE = `${IMAGE_CDN_BASE}/proveedores/4c39cb9b-109b-4000-93d1-08ecd15073b0/temporales/1eab8f85-4b19-4891-ae6e-c2a800f5207a.webp`;
+const FIFTH_EDITORIAL_IMAGE = `${IMAGE_CDN_BASE}/proveedores/4c39cb9b-109b-4000-93d1-08ecd15073b0/temporales/2fce6444-b41d-4b26-9274-e6889219591b.webp`;
+const SIXTH_EDITORIAL_IMAGE = `${IMAGE_CDN_BASE}/proveedores/4c39cb9b-109b-4000-93d1-08ecd15073b0/temporales/10c7f9d3-0b5b-4510-9411-72354c458e1a.webp`;
+const SEVENTH_EDITORIAL_IMAGE = `${IMAGE_CDN_BASE}/proveedores/4c39cb9b-109b-4000-93d1-08ecd15073b0/temporales/bf9f720c-ca46-4d62-8c24-7ff59136b97a.webp`;
+const EIGHTH_EDITORIAL_IMAGE = `${IMAGE_CDN_BASE}/proveedores/4c39cb9b-109b-4000-93d1-08ecd15073b0/temporales/5c697846-2974-4f7e-b11f-355f9b849a96.webp`;
+const NINTH_EDITORIAL_IMAGE = `${IMAGE_CDN_BASE}/proveedores/4c39cb9b-109b-4000-93d1-08ecd15073b0/temporales/963052a5-a2c2-4df0-a059-fe68e7ada6e9.webp`;
 
 const fadeUp = {
   initial: { opacity: 0, y: 28 },

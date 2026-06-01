@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { EthraLogo } from "./EthraLogo";
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -20,13 +21,11 @@ export function Navbar() {
     ? "text-white [text-shadow:_0_2px_12px_rgba(0,0,0,0.9),_0_0_2px_rgba(0,0,0,0.7)]"
     : "text-ethra-charcoal";
 
-  const logoColor = isHome && !scrolled
-    ? "text-ethra-bone"
-    : "text-ethra-black";
-
   const iconColor = isHome && !scrolled
     ? "text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]"
     : "text-ethra-charcoal";
+
+  const logoElevated = isHome && !scrolled;
 
   return (
     <header
@@ -37,9 +36,10 @@ export function Navbar() {
       <nav className="mx-auto flex max-w-[1400px] items-center justify-between px-6 md:px-10 h-16 md:h-20">
         <Link
           href="/"
-          className={`font-serif text-base md:text-lg tracking-wide ${logoColor}`}
+          className="inline-flex shrink-0 items-center transition-opacity duration-300 hover:opacity-90"
+          aria-label="Ethra Sport — Inicio"
         >
-          ETHRA <span className="mx-1 text-ethra-stone">·</span> SPORT
+          <EthraLogo variant="navbar" priority elevated={logoElevated} />
         </Link>
 
         <ul className="hidden md:flex items-center gap-10">

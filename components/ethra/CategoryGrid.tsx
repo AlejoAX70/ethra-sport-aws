@@ -5,6 +5,7 @@ import useEmblaCarousel from "embla-carousel-react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { StorefrontCategory } from "@/lib/storefront/types";
+import { toCdnImageUrl } from "@/lib/cdn";
 
 const AUTOPLAY_INTERVAL_MS = 5000;
 const AUTOPLAY_PAUSE_MS = 10_000;
@@ -101,7 +102,7 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
                     className="group relative block aspect-[4/5] overflow-hidden"
                   >
                     <img
-                      src={cat.imageUrl}
+                      src={toCdnImageUrl(cat.imageUrl)}
                       alt={cat.name}
                       className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-105"
                     />

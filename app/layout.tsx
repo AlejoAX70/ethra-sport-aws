@@ -1,17 +1,31 @@
 import type { Metadata } from "next";
+import { ETHRA_BRAND } from "@/lib/brand";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Ethra Sport — Pureza en Movimiento",
   description:
     "Ethra Sport: ropa deportiva de quiet luxury. Diseño minimalista, alto rendimiento y materiales nobles para el movimiento esencial.",
+  icons: {
+    icon: ETHRA_BRAND.logoUrl,
+    apple: ETHRA_BRAND.logoUrl,
+  },
   openGraph: {
     title: "Ethra Sport — Pureza en Movimiento",
     description: "Colección esencial de ropa deportiva de lujo silencioso.",
     type: "website",
+    images: [
+      {
+        url: ETHRA_BRAND.logoUrl,
+        width: 512,
+        height: 512,
+        alt: ETHRA_BRAND.logoAlt,
+      },
+    ],
   },
   twitter: {
     card: "summary",
+    images: [ETHRA_BRAND.logoUrl],
   },
 };
 

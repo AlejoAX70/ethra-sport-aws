@@ -3,6 +3,7 @@ import type {
   StorefrontPrice,
   StorefrontProduct,
 } from "./types";
+import { toCdnImageUrl } from "@/lib/cdn";
 
 export type CatalogSortOption = "newest" | "name-asc" | "price-asc" | "price-desc";
 
@@ -48,7 +49,7 @@ export function getProductCategoryLabel(product: StorefrontProduct): string {
 }
 
 export function getProductImageUrl(product: StorefrontProduct): string {
-  return product.images.primary || product.images.basePath;
+  return toCdnImageUrl(product.images.primary || product.images.basePath);
 }
 
 export function getProductGalleryUrls(product: StorefrontProduct): string[] {
@@ -56,7 +57,7 @@ export function getProductGalleryUrls(product: StorefrontProduct): string[] {
     product.images.images
       ?.slice()
       .sort((a, b) => a.sortOrder - b.sortOrder)
-      .map((img) => img.url)
+      .map((img) => toCdnImageUrl(img.url))
       .filter(Boolean) ?? [];
 
   if (gallery.length > 0) return gallery;

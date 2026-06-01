@@ -52,7 +52,7 @@ export async function storefrontFetch<T>(
     headers.set("Content-Type", "application/json");
   }
 
-  const response = await fetch(url, { ...init, method, headers });
+  const response = await fetch(url, { ...init, method, headers, cache: "no-store" });
 
   if (!response.ok) {
     const text = await response.text();

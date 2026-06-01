@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { StorefrontProduct } from "@/lib/storefront/types";
 import { formatStorefrontPrice, getProductGalleryUrls } from "@/lib/storefront/format";
+import { toCdnImageUrl } from "@/lib/cdn";
 import {
   getDefaultVariantSelection,
   getVariantDisplayPrice,
@@ -19,7 +20,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
   const displayImages =
     images.length > 0
       ? images
-      : [product.images.primary || product.images.basePath].filter(Boolean);
+      : [toCdnImageUrl(product.images.primary || product.images.basePath)].filter(Boolean);
 
   const parsedVariants = useMemo(
     () => parseProductVariants(product.variants ?? []),

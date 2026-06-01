@@ -6,6 +6,9 @@ import { Testimonials } from "@/components/ethra/Testimonials";
 import { Footer } from "@/components/ethra/Footer";
 import { getCategories, getCatalog } from "@/lib/storefront/api";
 
+/** Datos frescos del API en cada visita (igual que /catalogo) */
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
   const [categoriesRes, catalogRes] = await Promise.all([
     getCategories().catch(() => ({ categories: [] })),

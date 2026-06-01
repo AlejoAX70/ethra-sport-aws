@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ShopLayout } from "@/components/ethra/ShopLayout";
+import { toCdnImageUrl } from "@/lib/cdn";
 import type { StorefrontCategory } from "@/lib/storefront/types";
 
 interface Props {
@@ -25,7 +26,7 @@ export function ColeccionesContent({ categories }: Props) {
                   className="group relative block aspect-[4/5] overflow-hidden"
                 >
                   <img
-                    src={cat.imageUrl}
+                    src={toCdnImageUrl(cat.imageUrl)}
                     alt={cat.name}
                     className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-105"
                   />
