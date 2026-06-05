@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ShoppingBag } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { EthraLogo } from "./EthraLogo";
+import { CartNavButton } from "./CartNavButton";
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -60,12 +60,7 @@ export function Navbar() {
           ))}
         </ul>
 
-        <button
-          aria-label="Bolsa"
-          className={`transition-colors duration-300 hover:text-ethra-gold ${iconColor}`}
-        >
-          <ShoppingBag className="h-5 w-5" strokeWidth={1.25} aria-hidden />
-        </button>
+        <CartNavButton className={iconColor} />
       </nav>
     </header>
   );

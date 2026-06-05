@@ -122,4 +122,192 @@
   .tracking-luxury {
     letter-spacing: 0.32em;
   }
+
+  .cart-badge-pop {
+    animation: badgePop 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .cart-item-enter {
+    animation: cartItemEnter 250ms ease-out;
+  }
+
+  .cart-subtotal-fade {
+    animation: cartSubtotalFade 200ms ease-out;
+  }
+
+  .cart-item-exit {
+    animation: cartItemExit 300ms ease-in-out forwards;
+    overflow: hidden;
+  }
+
+  .cart-drawer-panel[data-state="open"] {
+    animation: cartDrawerIn 350ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .cart-drawer-panel[data-state="closed"] {
+    animation: cartDrawerOut 280ms cubic-bezier(0.4, 0, 1, 1);
+  }
+
+  .cart-drawer-overlay[data-state="open"] {
+    animation: cartOverlayIn 300ms ease-out;
+  }
+
+  .cart-drawer-overlay[data-state="closed"] {
+    animation: cartOverlayOut 200ms ease-in;
+  }
+}
+
+@keyframes badgePop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.35);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes cartItemEnter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cartSubtotalFade {
+  from {
+    opacity: 0.5;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes cartItemExit {
+  from {
+    opacity: 1;
+    max-height: var(--cart-item-height, 200px);
+  }
+  to {
+    opacity: 0;
+    max-height: 0;
+  }
+}
+
+@keyframes cartDrawerIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes cartDrawerOut {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes cartOverlayIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes cartOverlayOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cart-badge-pop,
+  .cart-item-enter,
+  .cart-item-exit,
+  .cart-subtotal-fade,
+  .cart-drawer-panel[data-state="open"],
+  .cart-drawer-panel[data-state="closed"],
+  .cart-drawer-mobile {
+    animation: none !important;
+  }
+
+  .cart-badge-pop,
+  .cart-item-enter,
+  .cart-item-exit,
+  .cart-subtotal-fade {
+    transition: opacity 150ms ease-out;
+  }
+
+  .cart-drawer-panel[data-state="open"],
+  .cart-drawer-panel[data-state="closed"] {
+    transition: opacity 200ms ease-out;
+  }
+
+  @keyframes cartDrawerIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes cartDrawerOut {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes cartItemEnter {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes badgePop {
+    0%,
+    100% {
+      transform: none;
+    }
+  }
+
+  @keyframes cartItemExit {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes cartSubtotalFade {
+    from {
+      opacity: 0.5;
+    }
+    to {
+      opacity: 1;
+    }
+  }
 }

@@ -3,7 +3,15 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { StorefrontProduct } from "@/lib/storefront/types";
-import { formatStorefrontPrice, getProductGalleryUrls } from "@/lib/storefront/format";
+import {
+  formatStorefrontPrice,
+  getProductCategoryLabel,
+  getProductGalleryUrls,
+  getProductImageUrl,
+} from "@/lib/storefront/format";
+import { useCart } from "@/hooks/useCart";
+import { requestOpenCartDrawer } from "@/lib/cart-drawer";
+import { toast } from "sonner";
 import { toCdnImageUrl } from "@/lib/cdn";
 import {
   getDefaultVariantSelection,
@@ -35,6 +43,8 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [selectedColorId, setSelectedColorId] = useState<string | null>(defaultSelection.colorId);
   const [selectedSizeId, setSelectedSizeId] = useState<string | null>(defaultSelection.sizeId);
+  const [isAdding, setIsAdding] = useState(false);
+  const { addItem } = useCart();
 
   useEffect(() => {
     setSelectedColorId(defaultSelection.colorId);
@@ -50,37 +60,6 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
   const canPurchase = parsedVariants.hasVariants
     ? Boolean(selectedVariant && selectedVariant.stock > 0)
     : product.inStock;
-
-  useEffect(() => {
-    console.log("[ProductDetailView] producto completo (backend):", product);
-    console.log("[ProductDetailView] fotos:", {
-      primary: product.images.primary,
-      basePath: product.images.basePath,
-      gallery: product.images.images,
-      urlsUsadas: displayImages,
-    });
-    console.log("[ProductDetailView] variantes (tallas, colores, stock):", product.variants);
-    console.log("[ProductDetailView] opciones parseadas:", {
-      tallas: parsedVariants.sizes,
-      colores: parsedVariants.colors,
-    });
-    console.log("[ProductDetailView] precio e inventario:", {
-      price: product.price,
-      taxes: product.taxes,
-      inStock: product.inStock,
-      totalStock: product.totalStock,
-    });
-  }, [product, displayImages, parsedVariants]);
-
-  useEffect(() => {
-    console.log("[ProductDetailView] selección actual:", {
-      colorId: selectedColorId,
-      sizeId: selectedSizeId,
-      variante: selectedVariant,
-      precioMostrado: displayPrice,
-      puedeComprar: canPurchase,
-    });
-  }, [selectedColorId, selectedSizeId, selectedVariant, displayPrice, canPurchase]);
 
   const stockLabel = parsedVariants.hasVariants
     ? selectedVariant
@@ -105,6 +84,61 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
   const breadcrumbParts = [product.category?.name, product.subcategory?.name].filter(
     Boolean,
   ) as string[];
+
+  const selectedColor = parsedVariants.colors.find((c) => c.id === selectedColorId) ?? null;
+  const selectedSize = parsedVariants.sizes.find((s) => s.id === selectedSizeId) ?? null;
+
+  const handleAddToCart = () => {
+    if (!canPurchase || isAdding) return;
+
+    setIsAdding(true);
+
+    const imageUrl =
+      displayImages[activeImageIndex] ?? getProductImageUrl(product);
+
+    addItem({
+      productId: product.id,
+      variantId: selectedVariant?.id ?? null,
+      sku: selectedVariant?.sku ?? null,
+      name: product.name,
+      imageUrl,
+      categoryName: getProductCategoryLabel(product),
+      price: displayPrice,
+      selectedColor: selectedColor
+        ? { id: selectedColor.id, hex: selectedColor.hex, name: selectedColor.name }
+        : null,
+      selectedSize: selectedSize
+        ? { id: selectedSize.id, label: selectedSize.label }
+        : null,
+      quantity: 1,
+    });
+
+    const descriptionParts = [
+      product.name,
+      selectedSize?.label,
+      selectedColor?.name,
+    ].filter(Boolean);
+
+    toast.success("Agregado a tu bolsa", {
+      description: descriptionParts.join(" · "),
+      duration: 4000,
+      action: {
+        label: "Ver bolsa",
+        onClick: () => requestOpenCartDrawer(),
+      },
+    });
+
+    window.setTimeout(() => setIsAdding(false), 600);
+  };
+
+  const addToCartAriaLabel = [
+    `Agregar ${product.name}`,
+    selectedSize ? `talla ${selectedSize.label}` : null,
+    selectedColor ? `color ${selectedColor.name}` : null,
+    "al carrito",
+  ]
+    .filter(Boolean)
+    .join(", ");
 
   return (
     <div className="mx-auto max-w-[1400px] px-4 py-8 md:px-8 md:py-12 lg:px-10">
@@ -281,14 +315,16 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
               disabled={!canPurchase}
               className="w-full bg-ethra-black px-6 py-4 font-display text-[11px] tracking-[0.14em] uppercase text-ethra-bone transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              Comprar ahora
+              COMPRAR AHORA
             </button>
             <button
               type="button"
-              disabled={!canPurchase}
+              disabled={!canPurchase || isAdding}
+              onClick={handleAddToCart}
+              aria-label={addToCartAriaLabel}
               className="w-full border border-ethra-black bg-transparent px-6 py-4 font-display text-[11px] tracking-[0.14em] uppercase text-ethra-black transition-colors hover:bg-ethra-black hover:text-ethra-bone disabled:cursor-not-allowed disabled:opacity-40"
             >
-              Agregar al carrito
+              {isAdding ? "AGREGANDO..." : "AGREGAR AL CARRITO"}
             </button>
           </div>
         </div>
