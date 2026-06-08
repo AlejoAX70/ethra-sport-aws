@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ETHRA_BRAND } from "@/lib/brand";
 import { CartProvider } from "@/store/cart";
+import { QueryProvider } from "@/components/providers/QueryProvider";
 import { EthraToaster } from "@/components/ethra/EthraToaster";
 import "./globals.css";
 
@@ -43,10 +44,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body>
-        <CartProvider>
-          {children}
-          <EthraToaster />
-        </CartProvider>
+        <QueryProvider>
+          <CartProvider>
+            {children}
+            <EthraToaster />
+          </CartProvider>
+        </QueryProvider>
       </body>
     </html>
   );

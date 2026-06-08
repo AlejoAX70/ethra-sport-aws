@@ -107,7 +107,10 @@ function CartDrawerContent({
               />
             ))}
           </ul>
-          <CartSummary onEmptied={() => exploreCtaRef.current?.focus()} />
+          <CartSummary
+            onEmptied={() => exploreCtaRef.current?.focus()}
+            onCheckoutNavigate={onClose}
+          />
         </>
       )}
     </div>
@@ -171,7 +174,10 @@ function MobileCartDrawerContent({
               />
             ))}
           </ul>
-          <CartSummary onEmptied={() => exploreCtaRef.current?.focus()} />
+          <CartSummary
+            onEmptied={() => exploreCtaRef.current?.focus()}
+            onCheckoutNavigate={onClose}
+          />
         </>
       )}
     </div>

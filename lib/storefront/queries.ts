@@ -3,6 +3,7 @@ import {
   getCatalog,
   getCategories,
   getCategoryProducts,
+  getPaymentStatus,
   getProduct,
   getStoreInfo,
   searchCatalog,
@@ -21,6 +22,8 @@ export const storefrontKeys = {
   product: (id: string) => [...storefrontKeys.all, "product", id] as const,
   search: (q: string, limit: number) => [...storefrontKeys.all, "search", q, limit] as const,
   storeInfo: () => [...storefrontKeys.all, "store-info"] as const,
+  paymentStatus: (reference: string) =>
+    [...storefrontKeys.all, "payment-status", reference] as const,
 };
 
 export const categoriesQueryOptions = () =>
@@ -73,4 +76,19 @@ export const storeInfoQueryOptions = () =>
     queryKey: storefrontKeys.storeInfo(),
     queryFn: getStoreInfo,
     staleTime: 120_000,
+  });
+
+const FINAL_PAYMENT_STATUSES = new Set(["APPROVED", "DECLINED", "ERROR", "VOIDED", "REFUNDED"]);
+
+export const paymentStatusQueryOptions = (reference: string) =>
+  queryOptions({
+    queryKey: storefrontKeys.paymentStatus(reference),
+    queryFn: () => getPaymentStatus(reference),
+    enabled: reference.length > 0,
+    refetchInterval: (query) => {
+      const status = query.state.data?.status;
+      if (status && FINAL_PAYMENT_STATUSES.has(status)) return false;
+      return 3_000;
+    },
+    staleTime: 0,
   });

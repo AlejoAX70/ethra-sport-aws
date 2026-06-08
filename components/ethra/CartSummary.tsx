@@ -1,17 +1,24 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useCart } from "@/hooks/useCart";
 import { formatStorefrontPrice } from "@/lib/storefront/format";
+import { storeInfoQueryOptions } from "@/lib/storefront/queries";
 
 interface CartSummaryProps {
   onEmptied?: () => void;
+  onCheckoutNavigate?: () => void;
 }
 
-export function CartSummary({ onEmptied }: CartSummaryProps) {
+export function CartSummary({ onEmptied, onCheckoutNavigate }: CartSummaryProps) {
   const { items, subtotal, currency, clearCart, restoreItems } = useCart();
   const [confirmClear, setConfirmClear] = useState(false);
+  const storeInfoQuery = useQuery(storeInfoQueryOptions());
+  const paymentsDisabled =
+    storeInfoQuery.isSuccess && storeInfoQuery.data?.paymentsEnabled === false;
 
   useEffect(() => {
     if (!confirmClear) return;
@@ -54,14 +61,24 @@ export function CartSummary({ onEmptied }: CartSummaryProps) {
         Envío y tasas calculados al pagar
       </p>
 
-      <button
-        type="button"
-        disabled
-        title="Disponible próximamente"
-        className="mt-5 w-full cursor-not-allowed bg-ethra-black px-6 py-4 font-display text-[11px] uppercase tracking-[0.14em] text-ethra-bone"
-      >
-        PROCEDER AL PAGO
-      </button>
+      {!paymentsDisabled ? (
+        <Link
+          href="/checkout"
+          onClick={onCheckoutNavigate}
+          className="mt-5 block w-full bg-ethra-black px-6 py-4 text-center font-display text-[11px] uppercase tracking-[0.14em] text-ethra-bone transition-opacity hover:opacity-90"
+        >
+          PROCEDER AL PAGO
+        </Link>
+      ) : (
+        <button
+          type="button"
+          disabled
+          title="Pagos no disponibles"
+          className="mt-5 w-full cursor-not-allowed bg-ethra-black/40 px-6 py-4 font-display text-[11px] uppercase tracking-[0.14em] text-ethra-bone/80"
+        >
+          PROCEDER AL PAGO
+        </button>
+      )}
 
       {confirmClear ? (
         <div className="mt-3 flex gap-3">

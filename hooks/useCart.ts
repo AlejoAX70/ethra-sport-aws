@@ -39,7 +39,7 @@ export function useCart(): {
     [state.items],
   );
 
-  const currency = state.items[0]?.price.currency ?? "MXN";
+  const currency = state.items[0]?.price.currency ?? "COP";
   const isEmpty = state.items.length === 0;
 
   const addItem = useCallback(

@@ -23,7 +23,6 @@ export default async function ProductPage({ params }: Props) {
   let product;
   try {
     product = await getProduct(productId);
-    console.log("[ProductPage] respuesta del backend (getProduct):", JSON.stringify(product, null, 2));
   } catch {
     notFound();
   }

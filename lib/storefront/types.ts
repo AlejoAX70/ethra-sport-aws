@@ -90,6 +90,40 @@ export interface StorefrontStoreInfo {
   id: string;
   name: string;
   logoUrl: string;
+  paymentsEnabled?: boolean;
+  currency?: string;
+}
+
+export interface CreateIntentRequest {
+  items: Array<{
+    productId: string;
+    variantId?: string;
+    quantity: number;
+  }>;
+  customer: {
+    fullName: string;
+    email: string;
+    phone: string;
+    address: string;
+  };
+}
+
+export interface CreateIntentResponse {
+  reference: string;
+  amountInCents: number;
+  currency: string;
+  publicKey: string;
+  signature: string;
+  environment: "sandbox" | "production";
+  redirectUrl: string;
+  expirationTime?: number;
+}
+
+export interface PaymentStatusResponse {
+  status: string;
+  saleId: string;
+  reference: string;
+  updatedAt: string;
 }
 
 export interface CatalogQueryParams {

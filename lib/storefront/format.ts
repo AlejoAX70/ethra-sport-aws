@@ -21,27 +21,31 @@ export interface CategoryPageContext {
 export function formatStorefrontPrice(price: StorefrontPrice): string {
   const hasDecimals = !Number.isInteger(price.amount);
   try {
-    return new Intl.NumberFormat("es-MX", {
+    return new Intl.NumberFormat("es-CO", {
       style: "currency",
-      currency: price.currency,
+      currency: "COP",
       minimumFractionDigits: hasDecimals ? 2 : 0,
       maximumFractionDigits: hasDecimals ? 2 : 0,
     }).format(price.amount);
   } catch {
-    return `${price.currency} ${price.amount.toLocaleString("es-MX")}`;
+    return `COP ${price.amount.toLocaleString("es-CO")}`;
   }
 }
 
+/** Convierte monto en pesos COP a centavos (consistente con backend). */
+export function toCents(amount: number): number {
+  return Math.round(amount * 100);
+}
+
 export function formatCatalogGridPrice(price: StorefrontPrice): string {
-  const amount = new Intl.NumberFormat("es-MX", {
+  const amount = new Intl.NumberFormat("es-CO", {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   })
     .format(price.amount)
     .replace(/,/g, ".");
 
-  const symbol = price.currency === "MXN" ? "$" : price.currency;
-  return `${symbol} ${amount}`;
+  return `$ ${amount}`;
 }
 
 export function getProductCategoryLabel(product: StorefrontProduct): string {

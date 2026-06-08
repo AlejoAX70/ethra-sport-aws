@@ -1,6 +1,9 @@
 import { storefrontFetch } from "./client";
 import type {
   CatalogQueryParams,
+  CreateIntentRequest,
+  CreateIntentResponse,
+  PaymentStatusResponse,
   StorefrontCatalogResponse,
   StorefrontCategoriesResponse,
   StorefrontProduct,
@@ -56,4 +59,16 @@ export function getCategoryProducts(
 
 export function getStoreInfo() {
   return storefrontFetch<StorefrontStoreInfo>("/store-info");
+}
+
+export function createPaymentIntent(payload: CreateIntentRequest) {
+  return storefrontFetch<CreateIntentResponse>("/payments/intent", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function getPaymentStatus(reference: string) {
+  const qs = new URLSearchParams({ reference }).toString();
+  return storefrontFetch<PaymentStatusResponse>(`/payments/status?${qs}`);
 }
