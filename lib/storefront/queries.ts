@@ -76,6 +76,7 @@ export const storeInfoQueryOptions = () =>
     queryKey: storefrontKeys.storeInfo(),
     queryFn: getStoreInfo,
     staleTime: 120_000,
+    retry: false,
   });
 
 const FINAL_PAYMENT_STATUSES = new Set(["APPROVED", "DECLINED", "ERROR", "VOIDED", "REFUNDED"]);

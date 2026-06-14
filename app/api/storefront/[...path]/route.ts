@@ -35,6 +35,12 @@ async function proxyStorefrontRequest(
     const method = request.method.toUpperCase();
 
     const headers = createProxyHeaders(tenantKey);
+
+    const originalContentType = request.headers.get("Content-Type");
+    if (originalContentType && method !== "GET" && method !== "HEAD") {
+      headers.set("Content-Type", originalContentType);
+    }
+
     if (!headers.get(TENANT_KEY_HEADER)) {
       return NextResponse.json(
         { message: `${TENANT_KEY_HEADER} no configurado en el proxy` },

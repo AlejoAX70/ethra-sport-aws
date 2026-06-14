@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
@@ -30,14 +30,21 @@ export function CheckoutResultView() {
   }, [status, clearCart]);
 
   const isPolling = !isFinal && !statusQuery.isError;
-  const timedOut =
-    isPolling &&
-    statusQuery.fetchStatus === "idle" &&
-    (statusQuery.dataUpdatedAt ?? 0) > 0 &&
-    Date.now() - (statusQuery.dataUpdatedAt ?? 0) > 60_000;
+  const [timedOut, setTimedOut] = useState(false);
+
+  useEffect(() => {
+    if (!reference || isFinal || statusQuery.isError) {
+      setTimedOut(false);
+      return;
+    }
+
+    setTimedOut(false);
+    const timer = window.setTimeout(() => setTimedOut(true), 60_000);
+    return () => window.clearTimeout(timer);
+  }, [reference, isFinal, statusQuery.isError]);
 
   let title = "Procesando tu pago";
-  let description = "Estamos confirmando la transacción. Esto puede tardar unos segundos.";
+  let description = "Esto puede tardar unos segundos.";
   let tone: "neutral" | "success" | "error" = "neutral";
 
   if (status === "APPROVED") {
@@ -62,8 +69,48 @@ export function CheckoutResultView() {
       "Tu pago puede tardar un poco más. Revisa tu correo; la referencia quedó registrada.";
   }
 
+  const showPollingSpinner = isPolling && !timedOut && tone === "neutral";
+
   return (
     <div className="mx-auto max-w-lg px-6 py-24 text-center">
+      {tone === "success" && (
+        <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-full border-2 border-emerald-700/30 bg-emerald-50">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            className="h-7 w-7 text-emerald-700"
+            aria-hidden
+          >
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </div>
+      )}
+
+      {tone === "error" && (
+        <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-full border-2 border-red-200 bg-red-50">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            className="h-7 w-7 text-red-600"
+            aria-hidden
+          >
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </div>
+      )}
+
+      {showPollingSpinner && (
+        <div
+          className="mx-auto mb-6 h-10 w-10 animate-spin rounded-full border-2 border-ethra-stone/20 border-t-ethra-charcoal"
+          aria-hidden
+        />
+      )}
+
       <div
         className={
           tone === "success"
@@ -83,26 +130,31 @@ export function CheckoutResultView() {
         </p>
       )}
 
-      {isPolling && !timedOut && (
-        <p className="mt-4 font-display text-[10px] uppercase tracking-luxury text-ethra-stone">
-          Verificando…
-        </p>
-      )}
-
       <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:justify-center">
-        <Link
-          href="/catalogo"
-          className="border border-ethra-black px-8 py-3 font-display text-[11px] uppercase tracking-[0.14em] text-ethra-black transition-colors hover:bg-ethra-black hover:text-ethra-bone"
-        >
-          Volver a la tienda
-        </Link>
-        {(status === "DECLINED" || status === "ERROR") && (
+        {status === "APPROVED" ? (
           <Link
-            href="/checkout"
+            href="/catalogo"
             className="bg-ethra-black px-8 py-3 font-display text-[11px] uppercase tracking-[0.14em] text-ethra-bone"
           >
-            Reintentar pago
+            Ver catálogo
           </Link>
+        ) : (
+          <>
+            <Link
+              href="/catalogo"
+              className="border border-ethra-black px-8 py-3 font-display text-[11px] uppercase tracking-[0.14em] text-ethra-black transition-colors hover:bg-ethra-black hover:text-ethra-bone"
+            >
+              Volver a la tienda
+            </Link>
+            {(status === "DECLINED" || status === "ERROR") && (
+              <Link
+                href="/checkout"
+                className="bg-ethra-black px-8 py-3 font-display text-[11px] uppercase tracking-[0.14em] text-ethra-bone"
+              >
+                Reintentar pago
+              </Link>
+            )}
+          </>
         )}
       </div>
     </div>

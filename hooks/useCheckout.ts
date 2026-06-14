@@ -60,6 +60,8 @@ export function useCheckout(items: CartItem[]) {
             const data = err.data as { lines?: string[]; message?: string } | undefined;
             setLineErrors(data?.lines ?? []);
             setError(data?.message ?? "Algunos productos cambiaron. Revisa tu bolsa.");
+          } else if (err.status === 400) {
+            setError("Error en los datos enviados. Verifica los campos e intenta de nuevo.");
           } else {
             setError(err.message);
           }

@@ -22,6 +22,7 @@ interface WompiWidgetLauncherProps {
   };
   onComplete: (reference: string) => void;
   onError: (message: string) => void;
+  onReady?: () => void;
 }
 
 function loadWompiScript(): Promise<void> {
@@ -51,6 +52,7 @@ export function WompiWidgetLauncher({
   customer,
   onComplete,
   onError,
+  onReady,
 }: WompiWidgetLauncherProps) {
   const launched = useRef(false);
   const [loading, setLoading] = useState(true);
@@ -85,6 +87,7 @@ export function WompiWidgetLauncher({
         });
 
         setLoading(false);
+        onReady?.();
         checkout.open(() => {
           onComplete(intent.reference);
         });
@@ -98,14 +101,10 @@ export function WompiWidgetLauncher({
     return () => {
       cancelled = true;
     };
-  }, [intent, customer, onComplete, onError]);
+  }, [intent, customer, onComplete, onError, onReady]);
 
   if (loading) {
-    return (
-      <p className="font-display text-[11px] uppercase tracking-luxury text-ethra-stone">
-        Abriendo pasarela segura…
-      </p>
-    );
+    return null;
   }
 
   return null;
