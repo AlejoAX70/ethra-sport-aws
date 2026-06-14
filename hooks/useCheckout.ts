@@ -2,9 +2,8 @@
 
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createPaymentIntent } from "@/lib/storefront/api";
+import { createPaymentIntentAction } from "@/lib/storefront/actions";
 import type { CreateIntentResponse } from "@/lib/storefront/types";
-import { StorefrontApiError } from "@/lib/storefront/client";
 import type { CartItem } from "@/store/cart";
 
 export type CheckoutPhase =
@@ -38,39 +37,36 @@ export function useCheckout(items: CartItem[]) {
       setLineErrors([]);
       setPhase("creating_intent");
 
-      try {
-        const payload = {
-          items: items.map((item) => ({
-            productId: item.productId,
-            variantId: item.variantId ?? undefined,
-            quantity: item.quantity,
-          })),
-          customer,
-        };
+      const payload = {
+        items: items.map((item) => ({
+          productId: item.productId,
+          variantId: item.variantId ?? undefined,
+          quantity: item.quantity,
+        })),
+        customer,
+      };
 
-        const response = await createPaymentIntent(payload);
-        setIntent(response);
-        setPhase("widget_open");
-        return response;
-      } catch (err) {
-        if (err instanceof StorefrontApiError) {
-          if (err.status === 409) {
-            setError("Pagos no disponibles para esta tienda.");
-          } else if (err.status === 422) {
-            const data = err.data as { lines?: string[]; message?: string } | undefined;
-            setLineErrors(data?.lines ?? []);
-            setError(data?.message ?? "Algunos productos cambiaron. Revisa tu bolsa.");
-          } else if (err.status === 400) {
-            setError("Error en los datos enviados. Verifica los campos e intenta de nuevo.");
-          } else {
-            setError(err.message);
-          }
+      const result = await createPaymentIntentAction(payload);
+
+      if (!result.ok) {
+        if (result.status === 409) {
+          setError("Pagos no disponibles para esta tienda.");
+        } else if (result.status === 422) {
+          const data = result.data as { lines?: string[]; message?: string } | undefined;
+          setLineErrors(data?.lines ?? []);
+          setError(data?.message ?? "Algunos productos cambiaron. Revisa tu bolsa.");
+        } else if (result.status === 400) {
+          setError("Error en los datos enviados. Verifica los campos e intenta de nuevo.");
         } else {
-          setError((err as Error)?.message ?? "No se pudo iniciar el pago.");
+          setError(result.message);
         }
         setPhase("error");
         return null;
       }
+
+      setIntent(result.data);
+      setPhase("widget_open");
+      return result.data;
     },
     [items, phase],
   );
