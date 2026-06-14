@@ -57,7 +57,33 @@ async function proxyStorefrontRequest(
       }
     }
 
-    const response = await fetch(storefrontUrl, init);
+    console.log(`[storefront proxy] ${method} ${storefrontUrl}`, {
+      hasBody: !!init.body,
+      headers: Object.fromEntries(headers.entries()),
+    });
+
+    const response = await fetch(storefrontUrl, { ...init, redirect: "manual" });
+
+    console.log(`[storefront proxy] response ${response.status} ${response.statusText}`, {
+      location: response.headers.get("location"),
+    });
+
+    if (response.status >= 300 && response.status < 400) {
+      const location = response.headers.get("location");
+      console.warn(`[storefront proxy] REDIRECT detected → ${location}`);
+      if (location) {
+        const followUp = await fetch(location, init);
+        const followHeaders = new Headers(followUp.headers);
+        followHeaders.delete("content-encoding");
+        followHeaders.delete("content-length");
+        return new NextResponse(followUp.body, {
+          status: followUp.status,
+          statusText: followUp.statusText,
+          headers: followHeaders,
+        });
+      }
+    }
+
     const responseHeaders = new Headers(response.headers);
     responseHeaders.delete("content-encoding");
     responseHeaders.delete("content-length");
