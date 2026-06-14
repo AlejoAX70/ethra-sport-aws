@@ -3,11 +3,11 @@ import {
   getCatalog,
   getCategories,
   getCategoryProducts,
-  getPaymentStatus,
   getProduct,
   getStoreInfo,
   searchCatalog,
 } from "./api";
+import { getPaymentStatusAction } from "./actions";
 import type { CatalogQueryParams } from "./types";
 
 export const storefrontKeys = {
@@ -84,7 +84,11 @@ const FINAL_PAYMENT_STATUSES = new Set(["APPROVED", "DECLINED", "ERROR", "VOIDED
 export const paymentStatusQueryOptions = (reference: string) =>
   queryOptions({
     queryKey: storefrontKeys.paymentStatus(reference),
-    queryFn: () => getPaymentStatus(reference),
+    queryFn: async () => {
+      const result = await getPaymentStatusAction(reference);
+      if (!result.ok) throw new Error(result.message);
+      return result.data;
+    },
     enabled: reference.length > 0,
     refetchInterval: (query) => {
       const status = query.state.data?.status;

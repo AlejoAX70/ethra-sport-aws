@@ -70,6 +70,12 @@ export function WompiWidgetLauncher({
           throw new Error("Widget de Wompi no disponible");
         }
 
+        if (!intent.publicKey) {
+          throw new Error(
+            "Llave pública de Wompi no configurada. Contacta al administrador de la tienda.",
+          );
+        }
+
         const checkout = new window.WidgetCheckout({
           currency: intent.currency,
           amountInCents: intent.amountInCents,
