@@ -48,11 +48,13 @@ async function proxyStorefrontRequest(
       );
     }
 
-    const init: RequestInit & { duplex?: "half" } = { method, headers };
+    const init: RequestInit = { method, headers };
 
     if (method !== "GET" && method !== "HEAD") {
-      init.body = request.body;
-      init.duplex = "half";
+      const bodyBytes = await request.arrayBuffer();
+      if (bodyBytes.byteLength > 0) {
+        init.body = bodyBytes;
+      }
     }
 
     const response = await fetch(storefrontUrl, init);
