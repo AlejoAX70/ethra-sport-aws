@@ -1,36 +1,38 @@
 import type { Metadata } from "next";
 import { ETHRA_BRAND } from "@/lib/brand";
+import { getCmsConfig } from "@/lib/cms/api";
 import { CartProvider } from "@/store/cart";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { EthraToaster } from "@/components/ethra/EthraToaster";
 import "./globals.css";
 
-export const metadata: Metadata = {
-  title: "Ethra Sport — Pureza en Movimiento",
-  description:
-    "Ethra Sport: ropa deportiva de quiet luxury. Diseño minimalista, alto rendimiento y materiales nobles para el movimiento esencial.",
-  icons: {
-    icon: ETHRA_BRAND.logoUrl,
-    apple: ETHRA_BRAND.logoUrl,
-  },
-  openGraph: {
-    title: "Ethra Sport — Pureza en Movimiento",
-    description: "Colección esencial de ropa deportiva de lujo silencioso.",
-    type: "website",
-    images: [
-      {
-        url: ETHRA_BRAND.logoUrl,
-        width: 512,
-        height: 512,
-        alt: ETHRA_BRAND.logoAlt,
-      },
-    ],
-  },
-  twitter: {
-    card: "summary",
-    images: [ETHRA_BRAND.logoUrl],
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const cmsConfig = await getCmsConfig().catch(() => null);
+  const title = cmsConfig?.default_meta_title ?? "Ethra Sport — Pureza en Movimiento";
+  const description =
+    cmsConfig?.default_meta_description ??
+    "Ethra Sport: ropa deportiva de quiet luxury. Diseño minimalista, alto rendimiento y materiales nobles para el movimiento esencial.";
+  const logoUrl = cmsConfig?.logo_url ?? ETHRA_BRAND.logoUrl;
+
+  return {
+    title,
+    description,
+    icons: {
+      icon: cmsConfig?.favicon_url ?? logoUrl,
+      apple: cmsConfig?.favicon_url ?? logoUrl,
+    },
+    openGraph: {
+      title,
+      description,
+      type: "website",
+      images: logoUrl ? [{ url: logoUrl, width: 512, height: 512, alt: ETHRA_BRAND.logoAlt }] : undefined,
+    },
+    twitter: {
+      card: "summary",
+      images: logoUrl ? [logoUrl] : undefined,
+    },
+  };
+}
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

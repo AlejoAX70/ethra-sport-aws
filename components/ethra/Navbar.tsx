@@ -6,10 +6,27 @@ import { usePathname } from "next/navigation";
 import { EthraLogo } from "./EthraLogo";
 import { CartNavButton } from "./CartNavButton";
 
-export function Navbar() {
+const DEFAULT_NAV = [
+  { label: "Colecciones", href: "/colecciones" },
+  { label: "Catálogo", href: "/catalogo" },
+  { label: "Filosofía", href: "/filosofia" },
+  { label: "Contacto", href: "#" },
+];
+
+interface NavItem {
+  label: string;
+  href: string;
+}
+
+interface NavbarProps {
+  menuItems?: NavItem[];
+}
+
+export function Navbar({ menuItems }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
   const isHome = pathname === "/";
+  const items = menuItems ?? DEFAULT_NAV;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -43,12 +60,7 @@ export function Navbar() {
         </Link>
 
         <ul className="hidden md:flex items-center gap-10">
-          {[
-            { label: "Colecciones", href: "/colecciones" },
-            { label: "Catálogo", href: "/catalogo" },
-            { label: "Filosofía", href: "/filosofia" },
-            { label: "Contacto", href: "#" },
-          ].map((item) => (
+          {items.map((item) => (
             <li key={item.label}>
               <Link
                 href={item.href}

@@ -1,8 +1,26 @@
 import Link from "next/link";
 import { EthraLogo } from "./EthraLogo";
 import { ETHRA_BRAND } from "@/lib/brand";
+import type { CmsConfigResponse } from "@/lib/cms/types";
 
-export function Footer() {
+const DEFAULT_FOOTER_LINKS = [
+  { label: "Colecciones", href: "/colecciones" },
+  { label: "Filosofía", href: "/filosofia" },
+  { label: "Diario", href: "#" },
+  { label: "Contacto", href: "#" },
+  { label: "Términos", href: "#" },
+  { label: "Privacidad", href: "#" },
+];
+
+interface FooterProps {
+  config?: CmsConfigResponse | null;
+  footerLinks?: Array<{ label: string; href: string }>;
+}
+
+export function Footer({ config, footerLinks }: FooterProps) {
+  const links = footerLinks ?? DEFAULT_FOOTER_LINKS;
+  const copyright = config?.copyright_text ?? `© ${new Date().getFullYear()} Ethra Sport. Pureza en movimiento.`;
+
   return (
     <footer className="bg-ethra-bone border-t border-border/60 py-16">
       <div className="mx-auto max-w-[1400px] px-6 text-center">
@@ -28,16 +46,23 @@ export function Footer() {
         </div>
 
         <nav className="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
-          <Link href="/colecciones" className="font-display text-[11px] tracking-wider uppercase text-ethra-charcoal hover:text-ethra-gold transition-colors">Colecciones</Link>
-          <Link href="/filosofia" className="font-display text-[11px] tracking-wider uppercase text-ethra-charcoal hover:text-ethra-gold transition-colors">Filosofía</Link>
-          <a href="#" className="font-display text-[11px] tracking-wider uppercase text-ethra-charcoal hover:text-ethra-gold transition-colors">Diario</a>
-          <a href="#" className="font-display text-[11px] tracking-wider uppercase text-ethra-charcoal hover:text-ethra-gold transition-colors">Contacto</a>
-          <a href="#" className="font-display text-[11px] tracking-wider uppercase text-ethra-charcoal hover:text-ethra-gold transition-colors">Términos</a>
-          <a href="#" className="font-display text-[11px] tracking-wider uppercase text-ethra-charcoal hover:text-ethra-gold transition-colors">Privacidad</a>
+          {links.map((item) => (
+            <Link
+              key={item.label}
+              href={item.href}
+              className="font-display text-[11px] tracking-wider uppercase text-ethra-charcoal hover:text-ethra-gold transition-colors"
+            >
+              {item.label}
+            </Link>
+          ))}
         </nav>
 
+        {config?.contact_email && (
+          <p className="mt-6 text-sm text-ethra-stone">{config.contact_email}</p>
+        )}
+
         <p className="mt-10 font-display text-[10px] tracking-luxury uppercase text-ethra-stone">
-          © 2024 Ethra Sport. Pureza en movimiento.
+          {copyright}
         </p>
       </div>
     </footer>
