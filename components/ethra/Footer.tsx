@@ -7,7 +7,7 @@ const DEFAULT_FOOTER_LINKS = [
   { label: "Colecciones", href: "/colecciones" },
   { label: "Filosofía", href: "/filosofia" },
   { label: "Diario", href: "#" },
-  { label: "Contacto", href: "#" },
+  { label: "Contacto", href: "/contacto" },
   { label: "Términos", href: "#" },
   { label: "Privacidad", href: "#" },
 ];
