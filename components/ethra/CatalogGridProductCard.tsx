@@ -20,20 +20,27 @@ export function CatalogGridProductCard({ product }: CatalogGridProductCardProps)
           showCta={false}
         />
 
-        <div className="mt-3 px-1">
-          <h3 className="truncate text-[13px] font-normal leading-snug text-ethra-black">
+        <div className="mt-3 px-0.5">
+          {/* Product name */}
+          <h3 className="truncate text-[13px] font-normal leading-snug text-ethra-black transition-colors duration-300 group-hover:text-ethra-charcoal">
             {product.name}
           </h3>
-          <p className="mt-1 text-[13px] font-normal leading-snug text-ethra-black">
+
+          {/* Price — in gold */}
+          <p
+            className="mt-1 text-[13px] font-normal leading-snug"
+            style={{ color: "oklch(0.58 0.105 80)" }}
+          >
             {formatCatalogGridPrice(product.price)}
           </p>
-        </div>
 
-        {!product.inStock ? (
-          <p className="mt-1 px-1 font-display text-[10px] tracking-luxury uppercase text-ethra-stone">
-            Agotado
-          </p>
-        ) : null}
+          {/* Out of stock */}
+          {!product.inStock ? (
+            <p className="mt-1 font-display text-[9px] tracking-luxury uppercase text-ethra-stone">
+              Agotado
+            </p>
+          ) : null}
+        </div>
       </Link>
     </article>
   );

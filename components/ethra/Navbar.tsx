@@ -26,6 +26,9 @@ export function Navbar({ menuItems }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
   const isHome = pathname === "/";
+  const isCollections =
+    pathname === "/colecciones" || pathname.startsWith("/colecciones/");
+  const hasDarkHero = isHome || isCollections;
   const items = menuItems ?? DEFAULT_NAV;
 
   useEffect(() => {
@@ -34,15 +37,17 @@ export function Navbar({ menuItems }: NavbarProps) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const textColor = isHome && !scrolled
-    ? "text-white [text-shadow:_0_2px_12px_rgba(0,0,0,0.9),_0_0_2px_rgba(0,0,0,0.7)]"
-    : "text-ethra-charcoal";
+  const textColor =
+    hasDarkHero && !scrolled
+      ? "text-white [text-shadow:_0_2px_12px_rgba(0,0,0,0.9),_0_0_2px_rgba(0,0,0,0.7)]"
+      : "text-ethra-charcoal";
 
-  const iconColor = isHome && !scrolled
-    ? "text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]"
-    : "text-ethra-charcoal";
+  const iconColor =
+    hasDarkHero && !scrolled
+      ? "text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]"
+      : "text-ethra-charcoal";
 
-  const logoElevated = isHome && !scrolled;
+  const logoElevated = hasDarkHero && !scrolled;
 
   return (
     <header

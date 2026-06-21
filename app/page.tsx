@@ -1,7 +1,10 @@
 import { Navbar } from "@/components/ethra/Navbar";
 import { Hero } from "@/components/ethra/Hero";
+import { HomeManifesto } from "@/components/ethra/HomeManifesto";
 import { CategoryGrid } from "@/components/ethra/CategoryGrid";
+import { HomeEditorial } from "@/components/ethra/HomeEditorial";
 import { NuevasFormas } from "@/components/ethra/NuevasFormas";
+
 import { Testimonials } from "@/components/ethra/Testimonials";
 import { Footer } from "@/components/ethra/Footer";
 import { getCategories, getCatalog } from "@/lib/storefront/api";
@@ -13,14 +16,27 @@ import { CmsApiError } from "@/lib/cms/client";
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const [categoriesRes, catalogRes, cmsPage, cmsConfig, mainMenu, footerMenu] = await Promise.all([
-    getCategories().catch(() => ({ categories: [] })),
-    getCatalog({ page: 1, limit: 3 }).catch(() => ({ products: [], pagination: { page: 1, limit: 3, total: 0, totalPages: 0, hasNext: false, hasPrev: false } })),
-    getCmsPage("home").catch((e) => (e instanceof CmsApiError && e.status === 404 ? null : null)),
-    getCmsConfig().catch(() => null),
-    getCmsMenu("main").catch(() => null),
-    getCmsMenu("footer").catch(() => null),
-  ]);
+  const [categoriesRes, catalogRes, cmsPage, cmsConfig, mainMenu, footerMenu] =
+    await Promise.all([
+      getCategories().catch(() => ({ categories: [] })),
+      getCatalog({ page: 1, limit: 3 }).catch(() => ({
+        products: [],
+        pagination: {
+          page: 1,
+          limit: 3,
+          total: 0,
+          totalPages: 0,
+          hasNext: false,
+          hasPrev: false,
+        },
+      })),
+      getCmsPage("home").catch((e) =>
+        e instanceof CmsApiError && e.status === 404 ? null : null
+      ),
+      getCmsConfig().catch(() => null),
+      getCmsMenu("main").catch(() => null),
+      getCmsMenu("footer").catch(() => null),
+    ]);
 
   const sections = cmsPage?.sections ?? [];
   const heroContent = findSectionContent(sections, "HERO");
@@ -32,12 +48,27 @@ export default async function HomePage() {
   return (
     <div className="bg-ethra-bone min-h-screen">
       <Navbar menuItems={navItems} />
+
       <main>
+        {/* 1. Hero — dramático, negro profundo + oro */}
         <Hero content={heroContent} />
+
+        {/* 2. Manifiesto — sección oscura con cita editorial */}
+        <HomeManifesto />
+
+        {/* 3. Colecciones — carrusel editorial */}
         <CategoryGrid categories={categoriesRes.categories} />
+
+        {/* 4. Split editorial — hardcoded por ahora */}
+        <HomeEditorial />
+
+        {/* 5. Nuevas formas — grid de productos */}
         <NuevasFormas products={catalogRes.products} />
+
+        {/* 6. Testimoniales — fondo negro, estrellas doradas */}
         <Testimonials content={testimonialsContent} />
       </main>
+
       <Footer config={cmsConfig} footerLinks={footerLinks} />
     </div>
   );
