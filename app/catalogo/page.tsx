@@ -1,4 +1,3 @@
-import { ShopLayout } from "@/components/ethra/ShopLayout";
 import { getCatalog, getCategories, searchCatalog } from "@/lib/storefront/api";
 import type { StorefrontPagination, StorefrontProduct } from "@/lib/storefront/types";
 import { CatalogoContent } from "./CatalogoContent";
@@ -45,15 +44,13 @@ export default async function CatalogoPage({ searchParams }: Props) {
   }
 
   return (
-    <ShopLayout>
-      <CatalogoContent
-        categories={categoriesRes.categories}
-        products={products}
-        pagination={pagination}
-        page={page}
-        categoryId={categoryId}
-        q={q}
-      />
-    </ShopLayout>
+    <CatalogoContent
+      categories={categoriesRes.categories}
+      products={products}
+      pagination={pagination}
+      page={page}
+      categoryId={categoryId}
+      q={q}
+    />
   );
 }

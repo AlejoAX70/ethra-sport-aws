@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-
+import { ShopLayout } from "@/components/ethra/ShopLayout";
 import { IMAGE_CDN_BASE } from "@/lib/cdn";
 
 const HERO_IMAGE = `${IMAGE_CDN_BASE}/proveedores/4c39cb9b-109b-4000-93d1-08ecd15073b0/temporales/9ed8075b-3d9e-46e1-b98d-df16b24c54c9.webp`;
@@ -16,6 +16,8 @@ const SEVENTH_EDITORIAL_IMAGE = `${IMAGE_CDN_BASE}/proveedores/4c39cb9b-109b-400
 const EIGHTH_EDITORIAL_IMAGE = `${IMAGE_CDN_BASE}/proveedores/4c39cb9b-109b-4000-93d1-08ecd15073b0/temporales/5c697846-2974-4f7e-b11f-355f9b849a96.webp`;
 const NINTH_EDITORIAL_IMAGE = `${IMAGE_CDN_BASE}/proveedores/4c39cb9b-109b-4000-93d1-08ecd15073b0/temporales/963052a5-a2c2-4df0-a059-fe68e7ada6e9.webp`;
 
+/* ─── Animation variants ─────────────────────────────────── */
+
 const fadeUp = {
   initial: { opacity: 0, y: 28 },
   whileInView: { opacity: 1, y: 0 },
@@ -23,100 +25,475 @@ const fadeUp = {
   transition: { duration: 0.9, ease: [0.22, 1, 0.36, 1] },
 } as const;
 
-function PhilosophyText({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+const fadeIn = {
+  initial: { opacity: 0 },
+  whileInView: { opacity: 1 },
+  viewport: { once: true, margin: "-60px" },
+  transition: { duration: 1.1, ease: [0.22, 1, 0.36, 1] },
+} as const;
+
+/* ─── Sub-components ─────────────────────────────────────── */
+
+function GoldOrnament() {
   return (
-    <motion.div {...fadeUp} className={`mx-auto max-w-2xl px-6 text-center md:px-10 ${className}`}>
-      <div className="space-y-6 text-[15px] leading-[1.9] text-ethra-charcoal md:text-base">{children}</div>
+    <div className="flex items-center justify-center gap-5" aria-hidden>
+      <span
+        className="block h-px bg-gradient-to-r from-transparent"
+        style={{ width: "clamp(32px,5vw,60px)", "--tw-gradient-to": "oklch(0.66 0.105 80 / 0.45)" } as React.CSSProperties}
+      />
+      <span style={{ color: "oklch(0.66 0.105 80 / 0.55)" }} className="text-xs">◆</span>
+      <span
+        className="block h-px bg-gradient-to-l from-transparent"
+        style={{ width: "clamp(32px,5vw,60px)", "--tw-gradient-to": "oklch(0.66 0.105 80 / 0.45)" } as React.CSSProperties}
+      />
+    </div>
+  );
+}
+
+interface SectionLabelProps {
+  numeral: string;
+  title: string;
+}
+
+function SectionLabel({ numeral, title }: SectionLabelProps) {
+  return (
+    <div className="flex items-center gap-5 mb-12">
+      <span
+        className="font-serif text-4xl italic leading-none"
+        style={{ color: "oklch(0.66 0.105 80 / 0.35)" }}
+      >
+        {numeral}
+      </span>
+      <span
+        className="block h-px flex-1"
+        style={{ background: "oklch(0.66 0.105 80 / 0.18)" }}
+        aria-hidden
+      />
+      <span
+        className="font-display text-[8px] tracking-[0.44em] uppercase"
+        style={{ color: "oklch(0.66 0.105 80 / 0.55)" }}
+      >
+        {title}
+      </span>
+    </div>
+  );
+}
+
+function EditorialImage({
+  src,
+  alt,
+  className = "",
+  eager = false,
+}: {
+  src: string;
+  alt: string;
+  className?: string;
+  eager?: boolean;
+}) {
+  return (
+    <motion.div {...fadeIn} className={`overflow-hidden ${className}`}>
+      <img
+        src={src}
+        alt={alt}
+        loading={eager ? "eager" : "lazy"}
+        className="h-full w-full object-cover transition-transform duration-[1800ms] ease-out hover:scale-[1.03]"
+      />
     </motion.div>
   );
 }
 
-function EditorialImage({ src, alt, className = "" }: { src: string; alt: string; className?: string }) {
-  return (
-    <motion.div {...fadeUp} className={`overflow-hidden bg-ethra-cream ${className}`}>
-      <img src={src} alt={alt} loading="lazy" className="h-full w-full object-cover" />
-    </motion.div>
-  );
-}
+/* ─── Main component ─────────────────────────────────────── */
 
 export function FilosofiaContent() {
   return (
-    <>
-      <section className="relative h-[88vh] min-h-[640px] w-full overflow-hidden">
-        <img src={HERO_IMAGE} alt="Mujer en movimiento con piezas Ethra Sport" className="absolute inset-0 h-full w-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-black/10 to-black/70" />
-        <div className="absolute inset-x-0 bottom-0 px-6 pb-14 md:px-10 md:pb-20">
-          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1.1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }} className="mx-auto max-w-[1400px] text-center md:text-left">
-            <p className="font-display text-[10px] tracking-[0.28em] uppercase text-ethra-bone/80">Mundo Ethra</p>
-            <h1 className="mt-4 font-serif text-3xl leading-tight text-ethra-bone md:text-5xl lg:text-6xl">
-              Donde el movimiento<span className="block italic font-normal">se vuelve refugio</span>
+    <ShopLayout padTop={false}>
+      {/* ══════════════════════════════════════════════════════
+          HERO — Full-bleed dark with deep overlays
+      ══════════════════════════════════════════════════════ */}
+      <section className="relative w-full overflow-hidden" style={{ minHeight: "95vh" }}>
+        {/* Background image */}
+        <img
+          src={HERO_IMAGE}
+          alt="Mujer en movimiento con piezas Ethra Sport"
+          className="absolute inset-0 h-full w-full object-cover"
+          fetchPriority="high"
+        />
+
+        {/* Layered dark overlays */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-black/85" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20" />
+
+        {/* Grain texture */}
+        <div
+          className="absolute inset-0 pointer-events-none opacity-[0.022]"
+          style={{
+            backgroundImage:
+              "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E\")",
+            backgroundSize: "200px 200px",
+          }}
+          aria-hidden
+        />
+
+        {/* Corner ornaments */}
+        <div className="absolute top-8 left-8 w-12 h-12 border-t border-l border-ethra-gold/15 pointer-events-none" aria-hidden />
+        <div className="absolute top-8 right-8 w-12 h-12 border-t border-r border-ethra-gold/15 pointer-events-none" aria-hidden />
+
+        {/* Hero content */}
+        <motion.div
+          initial={{ opacity: 0, y: 28 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1.2, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+          className="absolute inset-x-0 bottom-0 px-6 pb-16 md:px-10 md:pb-24"
+        >
+          <div className="mx-auto max-w-[1400px]">
+            {/* Gold ornament */}
+            <div className="flex items-center gap-4 mb-8">
+              <span
+                className="block h-px"
+                style={{ width: "clamp(32px,5vw,56px)", background: "oklch(0.66 0.105 80 / 0.50)" }}
+                aria-hidden
+              />
+              <span
+                className="font-display text-[8px] tracking-[0.44em] uppercase"
+                style={{ color: "oklch(0.66 0.105 80 / 0.70)" }}
+              >
+                Mundo Ethra
+              </span>
+            </div>
+
+            <h1
+              className="font-serif leading-[1.05] text-ethra-bone"
+              style={{ fontSize: "clamp(2.6rem, 6vw, 5.5rem)" }}
+            >
+              Donde el movimiento
+              <span
+                className="block italic font-normal"
+                style={{ color: "oklch(0.78 0.085 80)" }}
+              >
+                se vuelve refugio
+              </span>
             </h1>
-            <p className="mt-5 max-w-xl font-display text-[11px] tracking-[0.18em] uppercase text-ethra-bone/75 md:text-xs">Diseñado para mujeres que eligen sentir, no solo vestir</p>
-          </motion.div>
-        </div>
-      </section>
 
-      <section className="bg-ethra-bone py-20 md:py-28">
-        <PhilosophyText>
-          <p>Ethra Sport nace de una convicción simple y profunda: el cuerpo de una mujer no necesita adornos que la limiten, sino piezas que la acompañen con respeto, suavidad y fuerza.</p>
-          <p>Cada prenda es un gesto de cuidado. Un espacio donde la piel respira, la silueta se honra y el movimiento recupera su lugar como ritual cotidiano — no como exigencia.</p>
-        </PhilosophyText>
-      </section>
+            <p
+              className="mt-6 font-display text-[10px] tracking-[0.28em] uppercase"
+              style={{ color: "oklch(0.965 0.005 85 / 0.55)" }}
+            >
+              Diseñado para mujeres que eligen sentir, no solo vestir
+            </p>
 
-      <section className="bg-ethra-bone pb-20 md:pb-28">
-        <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-2 px-3 md:grid-cols-2 md:px-6 lg:px-10">
-          <EditorialImage src={FIRST_EDITORIAL_IMAGE} alt="Texturas y esencia de la marca Ethra" className="min-h-[520px] md:row-span-2 md:min-h-[760px]" />
-          <EditorialImage src={SECOND_EDITORIAL_IMAGE} alt="Ritual de movimiento consciente" className="min-h-[280px] md:min-h-[374px]" />
-          <EditorialImage src={THIRD_EDITORIAL_IMAGE} alt="Arquitectura del cuerpo en movimiento" className="min-h-[280px] md:min-h-[374px]" />
-        </div>
-      </section>
-
-      <section className="bg-ethra-bone py-20 md:py-28">
-        <PhilosophyText>
-          <p>En nuestro universo, la moda deportiva deja de ser uniforme para convertirse en expresión. Tejidos que abrazan sin apretar. Cortes que siguen tu respiración. Colores que evocan calma, tierra y luz — porque sentirte bien también es una forma de elegancia.</p>
-          <p>Creemos en la mujer que se mueve a su ritmo: la que entrena, camina, descansa y vuelve a empezar. La que no busca perfección, sino presencia.</p>
-        </PhilosophyText>
-      </section>
-
-      <section className="bg-ethra-bone pb-20 md:pb-28">
-        <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-2 px-3 md:grid-cols-2 md:px-6 lg:px-10">
-          <EditorialImage src={FOURTH_EDITORIAL_IMAGE} alt="Detalle artesanal de confección" className="min-h-[420px]" />
-          <EditorialImage src={FIFTH_EDITORIAL_IMAGE} alt="Movimiento y libertad" className="min-h-[420px]" />
-        </div>
-      </section>
-
-      <section className="relative min-h-[520px] overflow-hidden md:min-h-[640px]">
-        <img src={SIXTH_EDITORIAL_IMAGE} alt="Comunidad Ethra en movimiento" className="absolute inset-0 h-full w-full object-cover" />
-        <div className="absolute inset-0 bg-black/45" />
-        <div className="relative flex min-h-[520px] items-end px-6 pb-14 md:min-h-[640px] md:px-10 md:pb-20">
-          <motion.div {...fadeUp} className="mx-auto w-full max-w-[1400px]">
-            <p className="max-w-xl font-serif text-3xl leading-snug text-ethra-bone md:text-4xl">&ldquo;Vestirte bien es recordarte que mereces espacio, tiempo y ternura.&rdquo;</p>
-            <p className="mt-5 font-display text-[10px] tracking-[0.24em] uppercase text-ethra-bone/75">Manifiesto Ethra Sport</p>
-          </motion.div>
-        </div>
-      </section>
-
-      <section className="bg-ethra-bone py-20 md:py-28">
-        <PhilosophyText>
-          <p>Nuestro taller no persigue tendencias efímeras. Observa el cuerpo, escucha sus cambios y diseña piezas que permanecen — en el armario y en la memoria. Porque lo verdadero lujo no es lo que se muestra: es lo que te hace sentir en casa contigo misma.</p>
-        </PhilosophyText>
-        <div className="mx-auto mt-16 grid max-w-[1400px] grid-cols-1 gap-2 px-3 sm:grid-cols-3 md:px-6 lg:px-10">
-          <EditorialImage src={SEVENTH_EDITORIAL_IMAGE} alt="Luz y calma" className="min-h-[320px]" />
-          <EditorialImage src={EIGHTH_EDITORIAL_IMAGE} alt="Mujeres en comunidad" className="min-h-[320px]" />
-          <EditorialImage src={NINTH_EDITORIAL_IMAGE} alt="Detalle de silueta femenina" className="min-h-[320px]" />
-        </div>
-      </section>
-
-      <section className="bg-ethra-bone px-6 pb-24 pt-4 md:px-10 md:pb-32">
-        <motion.div {...fadeUp} className="mx-auto max-w-3xl border border-ethra-stone/20 px-8 py-14 text-center md:px-14 md:py-16">
-          <p className="font-display text-[10px] tracking-[0.28em] uppercase text-ethra-stone">Pureza en movimiento</p>
-          <h2 className="mt-5 font-serif text-3xl text-ethra-black md:text-4xl">Esta es nuestra manera de acompañarte</h2>
-          <p className="mt-6 text-[15px] leading-[1.9] text-ethra-charcoal">Ethra Sport no te pide que cambies. Te invita a reconocerte: fuerte, sensible, en constante transformación. Y a elegir, cada día, la belleza de moverte con intención.</p>
-          <Link href="/colecciones" className="mt-10 inline-block border border-ethra-black px-10 py-3.5 font-display text-[10px] tracking-luxury uppercase text-ethra-black transition-colors hover:bg-ethra-black hover:text-ethra-bone">
-            Explorar colecciones
-          </Link>
+            {/* Scroll cue */}
+            <div className="mt-14 flex items-center gap-4" aria-hidden>
+              <div
+                className="h-10 w-px"
+                style={{ background: "linear-gradient(to bottom, oklch(0.66 0.105 80 / 0.55), transparent)" }}
+              />
+            </div>
+          </div>
         </motion.div>
       </section>
-    </>
+
+      {/* ══════════════════════════════════════════════════════
+          I — Razón de ser
+      ══════════════════════════════════════════════════════ */}
+      <section className="bg-ethra-bone px-6 py-24 md:px-16 md:py-32 lg:px-24">
+        <div className="mx-auto max-w-[1400px]">
+          <motion.div {...fadeUp}>
+            <SectionLabel numeral="I" title="Razón de ser" />
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 md:gap-20 items-start">
+            <motion.div {...fadeUp}>
+              <p className="font-serif text-3xl md:text-4xl leading-tight text-ethra-black mb-8">
+                El cuerpo de una mujer no necesita adornos que la limiten,{" "}
+                <span className="italic" style={{ color: "oklch(0.55 0.100 80)" }}>
+                  sino piezas que la acompañen.
+                </span>
+              </p>
+            </motion.div>
+
+            <motion.div {...fadeUp} className="space-y-5 text-[15px] leading-[1.95] text-ethra-charcoal md:pt-2">
+              <p>
+                Ethra Sport nace de una convicción simple y profunda: el cuerpo de una mujer no necesita adornos que la limiten, sino piezas que la acompañen con respeto, suavidad y fuerza.
+              </p>
+              <p>
+                Cada prenda es un gesto de cuidado. Un espacio donde la piel respira, la silueta se honra y el movimiento recupera su lugar como ritual cotidiano — no como exigencia.
+              </p>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Editorial grid 1 ── */}
+      <section className="bg-ethra-bone pb-24 md:pb-32">
+        <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-[3px] px-3 md:grid-cols-2 md:px-6 lg:px-10">
+          <EditorialImage
+            src={FIRST_EDITORIAL_IMAGE}
+            alt="Texturas y esencia de la marca Ethra"
+            className="min-h-[520px] md:row-span-2 md:min-h-[760px] bg-ethra-cream"
+            eager
+          />
+          <EditorialImage
+            src={SECOND_EDITORIAL_IMAGE}
+            alt="Ritual de movimiento consciente"
+            className="min-h-[280px] md:min-h-[376px] bg-ethra-cream"
+          />
+          <EditorialImage
+            src={THIRD_EDITORIAL_IMAGE}
+            alt="Arquitectura del cuerpo en movimiento"
+            className="min-h-[280px] md:min-h-[376px] bg-ethra-cream"
+          />
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════
+          II — Expresión
+      ══════════════════════════════════════════════════════ */}
+      <section className="bg-ethra-bone px-6 py-24 md:px-16 md:py-32 lg:px-24">
+        <div className="mx-auto max-w-[1400px]">
+          <motion.div {...fadeUp}>
+            <SectionLabel numeral="II" title="Expresión" />
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 md:gap-20 items-start">
+            <motion.div {...fadeUp} className="space-y-5 text-[15px] leading-[1.95] text-ethra-charcoal">
+              <p>
+                En nuestro universo, la moda deportiva deja de ser uniforme para convertirse en expresión. Tejidos que abrazan sin apretar. Cortes que siguen tu respiración. Colores que evocan calma, tierra y luz — porque sentirte bien también es una forma de elegancia.
+              </p>
+              <p>
+                Creemos en la mujer que se mueve a su ritmo: la que entrena, camina, descansa y vuelve a empezar. La que no busca perfección, sino presencia.
+              </p>
+            </motion.div>
+
+            <motion.div {...fadeUp}>
+              <p className="font-serif text-2xl md:text-3xl leading-snug text-ethra-black italic">
+                "La elegancia no es llamar la atención, es que te recuerden."
+              </p>
+              <div
+                className="mt-6 h-px"
+                style={{ background: "oklch(0.66 0.105 80 / 0.30)", maxWidth: "120px" }}
+                aria-hidden
+              />
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Editorial grid 2 ── */}
+      <section className="bg-ethra-bone pb-0 md:pb-0">
+        <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-[3px] px-3 md:grid-cols-2 md:px-6 lg:px-10">
+          <EditorialImage src={FOURTH_EDITORIAL_IMAGE} alt="Detalle artesanal de confección" className="min-h-[460px] bg-ethra-cream" />
+          <EditorialImage src={FIFTH_EDITORIAL_IMAGE} alt="Movimiento y libertad" className="min-h-[460px] bg-ethra-cream" />
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════
+          DARK QUOTE SECTION — Full atmosphere
+      ══════════════════════════════════════════════════════ */}
+      <section
+        className="relative overflow-hidden"
+        style={{ minHeight: "72vh", backgroundColor: "oklch(0.10 0.004 78)" }}
+      >
+        {/* Background image at low opacity */}
+        <div className="absolute inset-0">
+          <img
+            src={SIXTH_EDITORIAL_IMAGE}
+            alt=""
+            aria-hidden
+            loading="lazy"
+            className="h-full w-full object-cover opacity-25"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/80" />
+        </div>
+
+        {/* Grain */}
+        <div
+          className="absolute inset-0 pointer-events-none opacity-[0.025]"
+          style={{
+            backgroundImage:
+              "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E\")",
+            backgroundSize: "200px 200px",
+          }}
+          aria-hidden
+        />
+
+        {/* Corner ornaments */}
+        <div className="absolute top-8 left-8 w-10 h-10 border-t border-l border-ethra-gold/15 pointer-events-none" aria-hidden />
+        <div className="absolute bottom-8 right-8 w-10 h-10 border-b border-r border-ethra-gold/15 pointer-events-none" aria-hidden />
+
+        {/* Content */}
+        <div className="relative flex items-center justify-center min-h-[72vh] px-6 py-20 md:px-10">
+          <motion.div {...fadeUp} className="mx-auto max-w-3xl text-center">
+            {/* Decorative quote mark */}
+            <div
+              className="font-serif text-[7rem] md:text-[10rem] leading-none select-none mb-0 -mt-8"
+              style={{ color: "oklch(0.66 0.105 80 / 0.14)", lineHeight: "0.7" }}
+              aria-hidden
+            >
+              &ldquo;
+            </div>
+
+            <blockquote className="font-serif text-2xl md:text-4xl lg:text-5xl leading-snug text-ethra-bone mt-6">
+              Vestirte bien es recordarte que mereces espacio, tiempo
+              <span
+                className="block italic font-normal mt-2"
+                style={{ color: "oklch(0.78 0.085 80)" }}
+              >
+                y ternura.
+              </span>
+            </blockquote>
+
+            <div className="mt-10 mb-6">
+              <GoldOrnament />
+            </div>
+
+            <cite
+              className="not-italic font-display text-[9px] tracking-[0.38em] uppercase"
+              style={{ color: "oklch(0.965 0.005 85 / 0.40)" }}
+            >
+              Manifiesto Ethra Sport
+            </cite>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════
+          III — Permanencia
+      ══════════════════════════════════════════════════════ */}
+      <section className="bg-ethra-bone px-6 py-24 md:px-16 md:py-32 lg:px-24">
+        <div className="mx-auto max-w-[1400px]">
+          <motion.div {...fadeUp}>
+            <SectionLabel numeral="III" title="Permanencia" />
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 md:gap-20 items-start">
+            <motion.div {...fadeUp}>
+              <p className="font-serif text-3xl md:text-4xl leading-tight text-ethra-black mb-8">
+                Lo verdadero lujo no es lo que se muestra:
+                <span className="block italic" style={{ color: "oklch(0.55 0.100 80)" }}>
+                  es lo que te hace sentir en casa contigo misma.
+                </span>
+              </p>
+            </motion.div>
+
+            <motion.div {...fadeUp} className="space-y-5 text-[15px] leading-[1.95] text-ethra-charcoal md:pt-2">
+              <p>
+                Nuestro taller no persigue tendencias efímeras. Observa el cuerpo, escucha sus cambios y diseña piezas que permanecen — en el armario y en la memoria. Porque lo verdadero lujo no es lo que se muestra: es lo que te hace sentir en casa contigo misma.
+              </p>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Editorial grid 3 (three images) ── */}
+      <section className="bg-ethra-bone pb-0">
+        <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-[3px] px-3 sm:grid-cols-3 md:px-6 lg:px-10">
+          <EditorialImage src={SEVENTH_EDITORIAL_IMAGE} alt="Luz y calma" className="min-h-[380px] bg-ethra-cream" />
+          <EditorialImage src={EIGHTH_EDITORIAL_IMAGE} alt="Mujeres en comunidad" className="min-h-[380px] bg-ethra-cream" />
+          <EditorialImage src={NINTH_EDITORIAL_IMAGE} alt="Detalle de silueta femenina" className="min-h-[380px] bg-ethra-cream" />
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════
+          CLOSING CTA — Dark, premium
+      ══════════════════════════════════════════════════════ */}
+      <section
+        className="relative overflow-hidden px-6 py-28 md:px-10 md:py-36"
+        style={{ backgroundColor: "oklch(0.10 0.004 78)" }}
+      >
+        {/* Grain */}
+        <div
+          className="absolute inset-0 pointer-events-none opacity-[0.022]"
+          style={{
+            backgroundImage:
+              "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E\")",
+            backgroundSize: "200px 200px",
+          }}
+          aria-hidden
+        />
+
+        {/* Corner ornaments */}
+        <div className="absolute top-8 left-8 w-10 h-10 border-t border-l border-ethra-gold/15 pointer-events-none" aria-hidden />
+        <div className="absolute bottom-8 right-8 w-10 h-10 border-b border-r border-ethra-gold/15 pointer-events-none" aria-hidden />
+
+        <motion.div {...fadeUp} className="relative mx-auto max-w-2xl text-center">
+          {/* Gold ornament */}
+          <div className="mb-10">
+            <GoldOrnament />
+          </div>
+
+          <p
+            className="font-display text-[8px] tracking-[0.44em] uppercase mb-6"
+            style={{ color: "oklch(0.66 0.105 80 / 0.60)" }}
+          >
+            Pureza en movimiento
+          </p>
+
+          <h2 className="font-serif text-3xl md:text-5xl leading-tight text-ethra-bone mb-8">
+            Esta es nuestra manera
+            <span
+              className="block italic font-normal"
+              style={{ color: "oklch(0.78 0.085 80)" }}
+            >
+              de acompañarte
+            </span>
+          </h2>
+
+          {/* Gold separator */}
+          <div
+            className="mx-auto mb-8 h-px"
+            style={{ maxWidth: "80px", background: "oklch(0.66 0.105 80 / 0.30)" }}
+            aria-hidden
+          />
+
+          <p
+            className="text-[15px] leading-[1.9] mb-12 max-w-xl mx-auto"
+            style={{ color: "oklch(0.965 0.005 85 / 0.62)" }}
+          >
+            Ethra Sport no te pide que cambies. Te invita a reconocerte: fuerte, sensible, en constante transformación. Y a elegir, cada día, la belleza de moverte con intención.
+          </p>
+
+          {/* CTAs */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link
+              href="/colecciones"
+              className="inline-block px-10 py-4 font-display text-[10px] tracking-luxury uppercase transition-all duration-300"
+              style={{
+                border: "1px solid oklch(0.66 0.105 80 / 0.50)",
+                color: "oklch(0.78 0.085 80)",
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "oklch(0.66 0.105 80)";
+                (e.currentTarget as HTMLAnchorElement).style.color = "oklch(0.10 0.004 78)";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "transparent";
+                (e.currentTarget as HTMLAnchorElement).style.color = "oklch(0.78 0.085 80)";
+              }}
+            >
+              Explorar colecciones
+            </Link>
+
+            <Link
+              href="/catalogo"
+              className="inline-block px-10 py-4 font-display text-[10px] tracking-luxury uppercase transition-all duration-300"
+              style={{
+                border: "1px solid oklch(0.965 0.005 85 / 0.15)",
+                color: "oklch(0.965 0.005 85 / 0.55)",
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLAnchorElement).style.borderColor = "oklch(0.965 0.005 85 / 0.35)";
+                (e.currentTarget as HTMLAnchorElement).style.color = "oklch(0.965 0.005 85 / 0.85)";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLAnchorElement).style.borderColor = "oklch(0.965 0.005 85 / 0.15)";
+                (e.currentTarget as HTMLAnchorElement).style.color = "oklch(0.965 0.005 85 / 0.55)";
+              }}
+            >
+              Ver catálogo
+            </Link>
+          </div>
+        </motion.div>
+      </section>
+    </ShopLayout>
   );
 }

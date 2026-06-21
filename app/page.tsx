@@ -30,13 +30,25 @@ export default async function HomePage() {
           hasPrev: false,
         },
       })),
-      getCmsPage("home").catch((e) =>
-        e instanceof CmsApiError && e.status === 404 ? null : null
-      ),
-      getCmsConfig().catch(() => null),
-      getCmsMenu("main").catch(() => null),
-      getCmsMenu("footer").catch(() => null),
+      getCmsPage("pagina-principal").catch((e) => {
+        console.error("[CMS] getCmsPage error:", e?.status, e?.message, e?.data);
+        return null;
+      }),
+      getCmsConfig().catch((e) => {
+        console.error("[CMS] getCmsConfig error:", e?.status, e?.message, e?.data);
+        return null;
+      }),
+      getCmsMenu("main").catch((e) => {
+        console.error("[CMS] getCmsMenu(main) error:", e?.status, e?.message, e?.data);
+        return null;
+      }),
+      getCmsMenu("footer").catch((e) => {
+        console.error("[CMS] getCmsMenu(footer) error:", e?.status, e?.message, e?.data);
+        return null;
+      }),
     ]);
+
+  console.log("[CMS pagina-principal]", JSON.stringify({ cmsPage, cmsConfig, mainMenu, footerMenu }, null, 2));
 
   const sections = cmsPage?.sections ?? [];
   const heroContent = findSectionContent(sections, "HERO");

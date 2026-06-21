@@ -28,7 +28,9 @@ export function Navbar({ menuItems }: NavbarProps) {
   const isHome = pathname === "/";
   const isCollections =
     pathname === "/colecciones" || pathname.startsWith("/colecciones/");
-  const hasDarkHero = isHome || isCollections;
+  const isCatalog = pathname === "/catalogo";
+  const isFilosofia = pathname === "/filosofia";
+  const hasDarkHero = isHome || isCollections || isCatalog || isFilosofia;
   const items = menuItems ?? DEFAULT_NAV;
 
   useEffect(() => {

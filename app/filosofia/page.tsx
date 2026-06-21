@@ -1,4 +1,3 @@
-import { ShopLayout } from "@/components/ethra/ShopLayout";
 import { FilosofiaContent } from "@/components/ethra/FilosofiaContent";
 
 export const metadata = {
@@ -7,9 +6,5 @@ export const metadata = {
 };
 
 export default function FilosofiaPage() {
-  return (
-    <ShopLayout>
-      <FilosofiaContent />
-    </ShopLayout>
-  );
+  return <FilosofiaContent />;
 }
