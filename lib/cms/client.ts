@@ -39,6 +39,7 @@ export async function cmsFetch<T>(path: string, init?: RequestInit): Promise<T> 
   const headers = new Headers(init?.headers);
   if (tenantKey) headers.set("X-Tenant-Key", tenantKey);
 
+  console.log("[CMS fetch]", url, "key:", tenantKey?.slice(0, 12) + "...");
   const response = await fetch(url, { ...init, headers, cache: "no-store" });
 
   if (!response.ok) {
