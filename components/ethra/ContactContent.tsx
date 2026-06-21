@@ -3,8 +3,7 @@
 import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Mail, MapPin, Clock, Instagram, MessageCircle, ChevronDown, Loader2 } from "lucide-react";
-import { submitContactMessage } from "@/lib/storefront/api";
-import { StorefrontApiError } from "@/lib/storefront/client";
+import { submitContactMessageAction } from "@/lib/storefront/actions";
 import type { ContactMessagePayload } from "@/lib/storefront/types";
 
 const fadeUp = {
@@ -177,29 +176,25 @@ export function ContactContent() {
     };
 
     try {
-      await submitContactMessage(payload);
+      const result = await submitContactMessageAction(payload);
       setIsSubmitting(false);
-      setIsSuccess(true);
-    } catch (err) {
-      setIsSubmitting(false);
-      if (err instanceof StorefrontApiError) {
-        if (err.status === 401) {
-          setSubmitError("No se pudo enviar el mensaje. La tienda no está disponible temporalmente.");
-        } else if (err.status === 400) {
-          const data = err.data as { message?: string | string[] } | undefined;
-          if (Array.isArray(data?.message)) {
-            setSubmitError(data.message.join(". "));
-          } else if (typeof data?.message === "string") {
-            setSubmitError(data.message);
-          } else {
-            setSubmitError("Hubo un error al enviar tu mensaje. Por favor, intenta de nuevo.");
-          }
+      if (result.ok) {
+        setIsSuccess(true);
+      } else if (result.status === 400) {
+        const data = result.data as { message?: string | string[] } | undefined;
+        if (Array.isArray(data?.message)) {
+          setSubmitError(data.message.join(". "));
+        } else if (typeof data?.message === "string") {
+          setSubmitError(data.message);
         } else {
           setSubmitError("Hubo un error al enviar tu mensaje. Por favor, intenta de nuevo.");
         }
       } else {
         setSubmitError("Hubo un error al enviar tu mensaje. Por favor, intenta de nuevo.");
       }
+    } catch {
+      setIsSubmitting(false);
+      setSubmitError("Hubo un error al enviar tu mensaje. Por favor, intenta de nuevo.");
     }
   }
 
