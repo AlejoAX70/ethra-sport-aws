@@ -131,3 +131,12 @@ export interface CatalogQueryParams {
   limit?: number;
   categoryId?: string;
 }
+
+export interface ContactMessagePayload {
+  fullName: string;
+  email: string;
+  phone?: string | null;
+  requestType: 'INQUIRY' | 'COMPLAINT' | 'CLAIM' | 'SUGGESTION' | 'OTHER';
+  subject: string;
+  message: string;
+}

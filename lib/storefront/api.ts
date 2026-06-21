@@ -1,6 +1,7 @@
 import { storefrontFetch } from "./client";
 import type {
   CatalogQueryParams,
+  ContactMessagePayload,
   CreateIntentRequest,
   CreateIntentResponse,
   PaymentStatusResponse,
@@ -71,4 +72,11 @@ export function createPaymentIntent(payload: CreateIntentRequest) {
 export function getPaymentStatus(reference: string) {
   const qs = new URLSearchParams({ reference }).toString();
   return storefrontFetch<PaymentStatusResponse>(`/payments/status?${qs}`);
+}
+
+export function submitContactMessage(payload: ContactMessagePayload) {
+  return storefrontFetch<{ id: string }>('/contact', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
 }

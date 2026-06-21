@@ -10,7 +10,7 @@ const DEFAULT_NAV = [
   { label: "Colecciones", href: "/colecciones" },
   { label: "Catálogo", href: "/catalogo" },
   { label: "Filosofía", href: "/filosofia" },
-  { label: "Contacto", href: "#" },
+  { label: "Contacto", href: "/contacto" },
 ];
 
 interface NavItem {
