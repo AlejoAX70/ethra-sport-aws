@@ -1,8 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
+import * as http from "node:http";
+import * as https from "node:https";
 
 export const runtime = "nodejs";
 
 const TENANT_KEY_HEADER = "X-Tenant-Key";
+// Cabeceras que no deben reenviarse tal cual (hop-by-hop / recalculadas por Next.js).
+const STRIP_RESPONSE_HEADERS = new Set([
+  "content-encoding",
+  "content-length",
+  "connection",
+  "transfer-encoding",
+  "keep-alive",
+]);
 
 function getStorefrontEnv() {
   const baseUrl = process.env.STOREFRONT_API_URL?.trim().replace(/\/$/, "");
@@ -15,11 +25,59 @@ function getStorefrontEnv() {
   return { baseUrl, tenantKey };
 }
 
-function createProxyHeaders(tenantKey: string) {
-  const headers = new Headers();
-  headers.set("Accept", "application/json");
-  headers.set(TENANT_KEY_HEADER, tenantKey);
-  return headers;
+interface ProxyResult {
+  status: number;
+  statusText: string;
+  headers: Record<string, string | string[]>;
+  body: Buffer;
+}
+
+/**
+ * Reenvía la petición usando node:http(s) en lugar del fetch() global de Next.js.
+ *
+ * Por qué: en runtime serverless de producción (Amplify), el fetch() parcheado de
+ * Next.js 15 ha perdido cabeceras salientes bajo reuso de conexión — ya se vio con
+ * el body de POST (ver commits dd33643/8adcc6e) y volvió a aparecer aquí para GET:
+ * el backend respondía "X-Tenant-Key es requerido" pese a que el código sí la
+ * seteaba. Reproducido de forma aislada (Node puro, mismo backend) la cabecera SÍ
+ * llega — o sea que el bug está en la capa fetch/undici de Next, no en la lógica.
+ * node:https no pasa por esa capa, así que evita la clase de bug por completo.
+ */
+function forwardRequest(
+  targetUrl: string,
+  { method, headers, body }: { method: string; headers: Record<string, string>; body?: Buffer },
+): Promise<ProxyResult> {
+  return new Promise((resolve, reject) => {
+    const url = new URL(targetUrl);
+    const transport = url.protocol === "http:" ? http : https;
+
+    const req = transport.request(
+      url,
+      {
+        method,
+        headers: {
+          ...headers,
+          ...(body ? { "Content-Length": String(body.byteLength) } : {}),
+        },
+      },
+      (res) => {
+        const chunks: Buffer[] = [];
+        res.on("data", (chunk) => chunks.push(chunk));
+        res.on("end", () => {
+          resolve({
+            status: res.statusCode ?? 502,
+            statusText: res.statusMessage ?? "",
+            headers: res.headers as Record<string, string | string[]>,
+            body: Buffer.concat(chunks),
+          });
+        });
+      },
+    );
+
+    req.on("error", reject);
+    if (body && body.byteLength > 0) req.write(body);
+    req.end();
+  });
 }
 
 async function proxyStorefrontRequest(
@@ -34,63 +92,46 @@ async function proxyStorefrontRequest(
     const storefrontUrl = `${baseUrl}${splat}${incomingUrl.search}`;
     const method = request.method.toUpperCase();
 
-    const headers = createProxyHeaders(tenantKey);
+    const outHeaders: Record<string, string> = {
+      Accept: "application/json",
+      [TENANT_KEY_HEADER]: tenantKey,
+    };
 
     const originalContentType = request.headers.get("Content-Type");
     if (originalContentType && method !== "GET" && method !== "HEAD") {
-      headers.set("Content-Type", originalContentType);
+      outHeaders["Content-Type"] = originalContentType;
     }
 
-    if (!headers.get(TENANT_KEY_HEADER)) {
-      return NextResponse.json(
-        { message: `${TENANT_KEY_HEADER} no configurado en el proxy` },
-        { status: 500 },
-      );
-    }
-
-    const init: RequestInit = { method, headers };
-
+    let body: Buffer | undefined;
     if (method !== "GET" && method !== "HEAD") {
       const bodyBytes = await request.arrayBuffer();
-      if (bodyBytes.byteLength > 0) {
-        init.body = bodyBytes;
+      if (bodyBytes.byteLength > 0) body = Buffer.from(bodyBytes);
+    }
+
+    let result = await forwardRequest(storefrontUrl, { method, headers: outHeaders, body });
+
+    // Redirect manual (API Gateway a veces normaliza rutas) — reenviar preservando método/headers/body.
+    if (result.status >= 300 && result.status < 400) {
+      const location = result.headers.location;
+      const locationUrl = Array.isArray(location) ? location[0] : location;
+      if (locationUrl) {
+        result = await forwardRequest(locationUrl, { method, headers: outHeaders, body });
       }
     }
 
-    console.log(`[storefront proxy] ${method} ${storefrontUrl}`, {
-      hasBody: !!init.body,
-      headers: Object.fromEntries(headers.entries()),
-    });
-
-    const response = await fetch(storefrontUrl, { ...init, redirect: "manual" });
-
-    console.log(`[storefront proxy] response ${response.status} ${response.statusText}`, {
-      location: response.headers.get("location"),
-    });
-
-    if (response.status >= 300 && response.status < 400) {
-      const location = response.headers.get("location");
-      console.warn(`[storefront proxy] REDIRECT detected → ${location}`);
-      if (location) {
-        const followUp = await fetch(location, init);
-        const followHeaders = new Headers(followUp.headers);
-        followHeaders.delete("content-encoding");
-        followHeaders.delete("content-length");
-        return new NextResponse(followUp.body, {
-          status: followUp.status,
-          statusText: followUp.statusText,
-          headers: followHeaders,
-        });
+    const responseHeaders = new Headers();
+    for (const [key, value] of Object.entries(result.headers)) {
+      if (STRIP_RESPONSE_HEADERS.has(key.toLowerCase())) continue;
+      if (Array.isArray(value)) {
+        for (const v of value) responseHeaders.append(key, v);
+      } else if (value) {
+        responseHeaders.set(key, value);
       }
     }
 
-    const responseHeaders = new Headers(response.headers);
-    responseHeaders.delete("content-encoding");
-    responseHeaders.delete("content-length");
-
-    return new NextResponse(response.body, {
-      status: response.status,
-      statusText: response.statusText,
+    return new NextResponse(new Uint8Array(result.body), {
+      status: result.status,
+      statusText: result.statusText,
       headers: responseHeaders,
     });
   } catch (error) {
