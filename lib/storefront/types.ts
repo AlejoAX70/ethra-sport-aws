@@ -31,6 +31,17 @@ export interface StorefrontProductImages {
 export interface StorefrontPrice {
   amount: number;
   currency: string;
+  originalAmount?: number;
+}
+
+export type StorefrontDiscountType = "PERCENTAGE" | "FIXED_AMOUNT";
+
+export interface StorefrontDiscount {
+  scopeType: "PRODUCT" | "CATEGORY";
+  discountType: StorefrontDiscountType;
+  value: number;
+  badgeLabel: string;
+  endsAt?: string | null;
 }
 
 export interface StorefrontTax {
@@ -52,6 +63,7 @@ export interface StorefrontProductVariant {
   attributes: Record<string, StorefrontVariantAttributeValue>;
   stock: number;
   priceOverride: number | StorefrontPrice | null;
+  originalPriceOverride?: number | StorefrontPrice | null;
 }
 
 export interface StorefrontProduct {
@@ -61,6 +73,8 @@ export interface StorefrontProduct {
   subcategory: StorefrontCategoryRef | null;
   images: StorefrontProductImages;
   price: StorefrontPrice;
+  originalPrice?: StorefrontPrice;
+  discount?: StorefrontDiscount;
   taxes: StorefrontTax[];
   variants?: StorefrontProductVariant[];
   inStock: boolean;

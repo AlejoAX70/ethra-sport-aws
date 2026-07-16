@@ -8,6 +8,7 @@ import {
   getProductCategoryLabel,
   getProductGalleryUrls,
   getProductImageUrl,
+  shouldShowDiscountBadge,
 } from "@/lib/storefront/format";
 import { useCart } from "@/hooks/useCart";
 import { requestOpenCartDrawer } from "@/lib/cart-drawer";
@@ -15,9 +16,10 @@ import { toast } from "sonner";
 import { toCdnImageUrl } from "@/lib/cdn";
 import {
   getDefaultVariantSelection,
-  getVariantDisplayPrice,
+  getVariantDisplayPricing,
   parseProductVariants,
 } from "@/lib/storefront/variants";
+import { DiscountBadge } from "./DiscountBadge";
 
 interface ProductDetailViewProps {
   product: StorefrontProduct;
@@ -55,7 +57,29 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
     ? parsedVariants.findVariant(selectedColorId, selectedSizeId)
     : null;
 
-  const displayPrice = getVariantDisplayPrice(product.price, selectedVariant);
+  const displayPricing = getVariantDisplayPricing(
+    product.price,
+    selectedVariant,
+    product,
+  );
+  const displayPrice = displayPricing.price;
+  const showDiscountBadge = shouldShowDiscountBadge({
+    badgeLabel: displayPricing.discount?.badgeLabel,
+    originalPrice: displayPricing.originalPrice,
+    currentPrice: displayPrice,
+  });
+  const discountBadgeLabel = showDiscountBadge
+    ? (displayPricing.discount?.badgeLabel ?? null)
+    : null;
+
+  const offerEndsCopy = useMemo(() => {
+    const endsAt = product.discount?.endsAt;
+    if (!endsAt) return null;
+    const ends = new Date(endsAt);
+    const days = Math.ceil((ends.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+    if (days < 1 || days > 14) return null;
+    return `Oferta termina el ${ends.toLocaleDateString("es-CO", { day: "numeric", month: "long" })}`;
+  }, [product.discount?.endsAt]);
 
   const canPurchase = parsedVariants.hasVariants
     ? Boolean(selectedVariant && selectedVariant.stock > 0)
@@ -104,6 +128,8 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
       imageUrl,
       categoryName: getProductCategoryLabel(product),
       price: displayPrice,
+      originalPrice: displayPricing.originalPrice,
+      discountBadgeLabel,
       selectedColor: selectedColor
         ? { id: selectedColor.id, hex: selectedColor.hex, name: selectedColor.name }
         : null,
@@ -237,9 +263,22 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
             {product.name}
           </h1>
 
-          <p className="mt-5 font-sans text-lg font-semibold text-ethra-black md:text-xl">
-            {formatStorefrontPrice(displayPrice)}
-          </p>
+          <div className="mt-5 flex flex-wrap items-center gap-3">
+            <p className="font-sans text-lg font-semibold text-ethra-black md:text-xl">
+              {formatStorefrontPrice(displayPrice)}
+            </p>
+            {discountBadgeLabel ? (
+              <DiscountBadge label={discountBadgeLabel} />
+            ) : null}
+          </div>
+          {showDiscountBadge && displayPricing.originalPrice ? (
+            <p className="mt-1 text-sm text-ethra-stone line-through">
+              {formatStorefrontPrice(displayPricing.originalPrice)}
+            </p>
+          ) : null}
+          {offerEndsCopy ? (
+            <p className="mt-2 font-display text-[11px] text-ethra-stone">{offerEndsCopy}</p>
+          ) : null}
 
           {parsedVariants.sizes.length > 0 ? (
             <div className="mt-8">

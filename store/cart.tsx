@@ -18,6 +18,8 @@ export interface CartItem {
   imageUrl: string;
   categoryName: string;
   price: { amount: number; currency: string };
+  originalPrice?: { amount: number; currency: string } | null;
+  discountBadgeLabel?: string | null;
   selectedColor: { id: string; hex: string; name: string } | null;
   selectedSize: { id: string; label: string } | null;
   quantity: number;

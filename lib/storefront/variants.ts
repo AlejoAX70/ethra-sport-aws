@@ -1,4 +1,5 @@
-import type { StorefrontPrice, StorefrontProductVariant } from "./types";
+import type { StorefrontPrice, StorefrontProduct, StorefrontProductVariant, StorefrontDiscount } from "./types";
+import { shouldShowDiscountBadge } from "./format";
 
 export interface ProductColorOption {
   id: string;
@@ -161,12 +162,73 @@ export function getVariantDisplayPrice(
   productPrice: StorefrontPrice,
   variant: StorefrontProductVariant | null,
 ): StorefrontPrice {
+  const pricing = getVariantDisplayPricing(productPrice, variant, null);
+  return pricing.price;
+}
+
+export interface VariantDisplayPricing {
+  price: StorefrontPrice;
+  originalPrice: StorefrontPrice | null;
+  discount: StorefrontDiscount | null;
+}
+
+function resolveVariantDiscount(
+  product: StorefrontProduct | null,
+  price: StorefrontPrice,
+  originalPrice: StorefrontPrice | null,
+): StorefrontDiscount | null {
+  return shouldShowDiscountBadge({
+    badgeLabel: product?.discount?.badgeLabel,
+    originalPrice,
+    currentPrice: price,
+  })
+    ? (product?.discount ?? null)
+    : null;
+}
+
+export function getVariantDisplayPricing(
+  productPrice: StorefrontPrice,
+  variant: StorefrontProductVariant | null,
+  product: StorefrontProduct | null,
+): VariantDisplayPricing {
   const override = variant?.priceOverride;
-  if (override == null) return productPrice;
-  if (typeof override === "number") {
-    return { amount: override, currency: productPrice.currency };
+  if (override == null) {
+    const originalPrice = product?.originalPrice ?? null;
+    return {
+      price: productPrice,
+      originalPrice,
+      discount: resolveVariantDiscount(product, productPrice, originalPrice),
+    };
   }
-  return override;
+
+  if (typeof override === "number") {
+    const price = { amount: override, currency: productPrice.currency };
+    const originalPrice = variant?.originalPriceOverride
+      ? typeof variant.originalPriceOverride === "number"
+        ? { amount: variant.originalPriceOverride, currency: productPrice.currency }
+        : variant.originalPriceOverride
+      : null;
+    return {
+      price,
+      originalPrice,
+      discount: resolveVariantDiscount(product, price, originalPrice),
+    };
+  }
+
+  const originalFromOverride =
+    override.originalAmount != null
+      ? { amount: override.originalAmount, currency: override.currency }
+      : variant?.originalPriceOverride
+        ? typeof variant.originalPriceOverride === "number"
+          ? { amount: variant.originalPriceOverride, currency: productPrice.currency }
+          : variant.originalPriceOverride
+        : null;
+
+  return {
+    price: override,
+    originalPrice: originalFromOverride,
+    discount: resolveVariantDiscount(product, override, originalFromOverride),
+  };
 }
 
 export function getDefaultVariantSelection(parsed: ParsedProductVariants): {

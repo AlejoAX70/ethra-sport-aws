@@ -104,6 +104,11 @@ export function CartItemCard({
         <p className="mt-1 font-display text-[11px] text-ethra-stone">
           {formatStorefrontPrice(item.price)}
         </p>
+        {item.originalPrice ? (
+          <p className="text-[10px] text-ethra-stone/80 line-through">
+            {formatStorefrontPrice(item.originalPrice)}
+          </p>
+        ) : null}
 
         <div className="mt-3 flex items-center gap-1">
           <button

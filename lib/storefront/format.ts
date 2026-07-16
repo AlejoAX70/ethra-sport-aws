@@ -48,6 +48,42 @@ export function formatCatalogGridPrice(price: StorefrontPrice): string {
   return `$ ${amount}`;
 }
 
+export function getEffectiveOriginalPrice(product: StorefrontProduct): StorefrontPrice | null {
+  if (product.originalPrice) return product.originalPrice;
+  if (product.price.originalAmount != null) {
+    return { amount: product.price.originalAmount, currency: product.price.currency };
+  }
+  return null;
+}
+
+/** Badge solo si hay precio tachado real (misma regla en tarjetas, detalle y carrito). */
+export function shouldShowDiscountBadge(params: {
+  badgeLabel?: string | null;
+  originalPrice?: StorefrontPrice | null;
+  currentPrice?: StorefrontPrice;
+}): boolean {
+  if (!params.badgeLabel?.trim()) return false;
+  if (!params.originalPrice) return false;
+  if (params.currentPrice && params.originalPrice.amount <= params.currentPrice.amount) {
+    return false;
+  }
+  return true;
+}
+
+export function hasActiveDiscount(product: StorefrontProduct): boolean {
+  const originalPrice = getEffectiveOriginalPrice(product);
+  return shouldShowDiscountBadge({
+    badgeLabel: product.discount?.badgeLabel,
+    originalPrice,
+    currentPrice: product.price,
+  });
+}
+
+export function formatDiscountBadge(product: StorefrontProduct): string | null {
+  if (!hasActiveDiscount(product)) return null;
+  return product.discount?.badgeLabel ?? null;
+}
+
 export function getProductCategoryLabel(product: StorefrontProduct): string {
   return product.subcategory?.name ?? product.category?.name ?? "";
 }
