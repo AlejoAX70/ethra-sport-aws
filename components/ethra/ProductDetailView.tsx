@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { StorefrontProduct } from "@/lib/storefront/types";
 import {
   formatStorefrontPrice,
@@ -46,7 +47,9 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
   const [selectedColorId, setSelectedColorId] = useState<string | null>(defaultSelection.colorId);
   const [selectedSizeId, setSelectedSizeId] = useState<string | null>(defaultSelection.sizeId);
   const [isAdding, setIsAdding] = useState(false);
+  const [isBuyingNow, setIsBuyingNow] = useState(false);
   const { addItem } = useCart();
+  const router = useRouter();
 
   useEffect(() => {
     setSelectedColorId(defaultSelection.colorId);
@@ -112,15 +115,11 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
   const selectedColor = parsedVariants.colors.find((c) => c.id === selectedColorId) ?? null;
   const selectedSize = parsedVariants.sizes.find((s) => s.id === selectedSizeId) ?? null;
 
-  const handleAddToCart = () => {
-    if (!canPurchase || isAdding) return;
-
-    setIsAdding(true);
-
+  const buildCartItemPayload = () => {
     const imageUrl =
       displayImages[activeImageIndex] ?? getProductImageUrl(product);
 
-    addItem({
+    return {
       productId: product.id,
       variantId: selectedVariant?.id ?? null,
       sku: selectedVariant?.sku ?? null,
@@ -137,7 +136,14 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
         ? { id: selectedSize.id, label: selectedSize.label }
         : null,
       quantity: 1,
-    });
+    };
+  };
+
+  const handleAddToCart = () => {
+    if (!canPurchase || isAdding) return;
+
+    setIsAdding(true);
+    addItem(buildCartItemPayload());
 
     const descriptionParts = [
       product.name,
@@ -155,6 +161,14 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
     });
 
     window.setTimeout(() => setIsAdding(false), 600);
+  };
+
+  const handleBuyNow = () => {
+    if (!canPurchase || isBuyingNow) return;
+
+    setIsBuyingNow(true);
+    addItem(buildCartItemPayload());
+    router.push("/checkout");
   };
 
   const addToCartAriaLabel = [
@@ -351,10 +365,11 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
           <div className="mt-8 flex flex-col gap-3">
             <button
               type="button"
-              disabled={!canPurchase}
+              disabled={!canPurchase || isBuyingNow}
+              onClick={handleBuyNow}
               className="w-full bg-ethra-black px-6 py-4 font-display text-[11px] tracking-[0.14em] uppercase text-ethra-bone transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              COMPRAR AHORA
+              {isBuyingNow ? "REDIRIGIENDO..." : "COMPRAR AHORA"}
             </button>
             <button
               type="button"
