@@ -13,20 +13,22 @@ const STORAGE_KEY = "ethra_banner_dismissals_v1";
 
 interface BannerVisibilityState {
   dismissedModalBannerId: string | null;
-  dismissedPersistentBannerId: string | null;
+  /** IDs de mensajes persistentes descartados en esta sesión (puede haber varios activos a la vez). */
+  dismissedPersistentBannerIds: string[];
 }
 
 type BannerVisibilityAction =
   | { type: "HYDRATE"; payload: BannerVisibilityState }
   | { type: "DISMISS_MODAL"; bannerId: string }
-  | { type: "DISMISS_PERSISTENT"; bannerId: string };
+  | { type: "DISMISS_PERSISTENT"; bannerIds: string[] };
 
 export interface BannerVisibilityContextValue {
   state: BannerVisibilityState;
   isHydrated: boolean;
   dispatch: Dispatch<BannerVisibilityAction>;
   dismissModal: (bannerId: string) => void;
-  dismissPersistent: (bannerId: string) => void;
+  /** Descarta TODOS los mensajes persistentes actualmente visibles (cierra la franja completa). */
+  dismissPersistent: (bannerIds: string[]) => void;
 }
 
 function isBannerVisibilityState(x: unknown): x is BannerVisibilityState {
@@ -34,7 +36,8 @@ function isBannerVisibilityState(x: unknown): x is BannerVisibilityState {
   const s = x as Record<string, unknown>;
   return (
     (s.dismissedModalBannerId === null || typeof s.dismissedModalBannerId === "string") &&
-    (s.dismissedPersistentBannerId === null || typeof s.dismissedPersistentBannerId === "string")
+    Array.isArray(s.dismissedPersistentBannerIds) &&
+    s.dismissedPersistentBannerIds.every((id) => typeof id === "string")
   );
 }
 
@@ -48,7 +51,12 @@ function bannerVisibilityReducer(
     case "DISMISS_MODAL":
       return { ...state, dismissedModalBannerId: action.bannerId };
     case "DISMISS_PERSISTENT":
-      return { ...state, dismissedPersistentBannerId: action.bannerId };
+      return {
+        ...state,
+        dismissedPersistentBannerIds: Array.from(
+          new Set([...state.dismissedPersistentBannerIds, ...action.bannerIds]),
+        ),
+      };
     default:
       return state;
   }
@@ -61,7 +69,7 @@ export const BannerVisibilityContext = createContext<BannerVisibilityContextValu
 export function BannerVisibilityProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(bannerVisibilityReducer, {
     dismissedModalBannerId: null,
-    dismissedPersistentBannerId: null,
+    dismissedPersistentBannerIds: [],
   });
   const [isHydrated, setIsHydrated] = useState(false);
 
@@ -94,8 +102,8 @@ export function BannerVisibilityProvider({ children }: { children: ReactNode }) 
     dispatch({ type: "DISMISS_MODAL", bannerId });
   };
 
-  const dismissPersistent = (bannerId: string) => {
-    dispatch({ type: "DISMISS_PERSISTENT", bannerId });
+  const dismissPersistent = (bannerIds: string[]) => {
+    dispatch({ type: "DISMISS_PERSISTENT", bannerIds });
   };
 
   return (

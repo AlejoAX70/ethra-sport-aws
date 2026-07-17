@@ -10,7 +10,7 @@ export function SiteBanners() {
 
   return (
     <>
-      <PersistentPromoBanner banner={data?.persistent} />
+      <PersistentPromoBanner banners={data?.persistent} />
       <PromoModalBanner banner={data?.modal} />
     </>
   );

@@ -6,10 +6,10 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import { toCdnImageUrl } from "@/lib/cdn";
 import { resolveBannerHref } from "@/lib/storefront/banner-link";
-import type { StorefrontBanner } from "@/lib/storefront/types";
+import type { StorefrontModalBanner } from "@/lib/storefront/types";
 import { useBannerVisibility } from "@/hooks/useBannerVisibility";
 
-export function PromoModalBanner({ banner }: { banner?: StorefrontBanner }) {
+export function PromoModalBanner({ banner }: { banner?: StorefrontModalBanner }) {
   const { state, isHydrated, dismissModal } = useBannerVisibility();
   const closeRef = useRef<HTMLButtonElement>(null);
 

@@ -1,6 +1,10 @@
-import type { StorefrontBanner } from "./types";
+interface BannerLinkTarget {
+  linkType: "PRODUCT" | "CATEGORY";
+  productId?: string;
+  categoryId?: string;
+}
 
-export function resolveBannerHref(banner: StorefrontBanner): string {
+export function resolveBannerHref(banner: BannerLinkTarget): string {
   if (banner.linkType === "PRODUCT" && banner.productId) {
     return `/producto/${banner.productId}`;
   }

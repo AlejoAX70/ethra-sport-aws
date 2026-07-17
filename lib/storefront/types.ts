@@ -155,17 +155,31 @@ export interface ContactMessagePayload {
   message: string;
 }
 
-export interface StorefrontBanner {
-  id: string;
-  bannerType: "MODAL" | "PERSISTENT";
-  imageUrl: string;
-  altText: string;
+interface StorefrontBannerLink {
   linkType: "PRODUCT" | "CATEGORY";
   productId?: string;
   categoryId?: string;
 }
 
+/** Banner modal (popup): imagen a pantalla completa, uno activo a la vez. */
+export interface StorefrontModalBanner extends StorefrontBannerLink {
+  id: string;
+  bannerType: "MODAL";
+  imageUrl: string;
+  altText: string;
+}
+
+/**
+ * Banner persistente: mensaje de texto corto (máx. 120 caracteres, una sola
+ * línea). Pueden existir varios activos a la vez — el storefront los rota
+ * mostrando uno solo en cada momento.
+ */
+export interface StorefrontPersistentBanner extends StorefrontBannerLink {
+  id: string;
+  message: string;
+}
+
 export interface StorefrontBannersResponse {
-  modal?: StorefrontBanner;
-  persistent?: StorefrontBanner;
+  modal?: StorefrontModalBanner;
+  persistent?: StorefrontPersistentBanner[];
 }
