@@ -2,7 +2,6 @@
 
 import { useRef } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import * as Dialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import { toCdnImageUrl } from "@/lib/cdn";
@@ -33,18 +32,18 @@ export function PromoModalBanner({ banner }: { banner?: StorefrontBanner }) {
             e.preventDefault();
             closeRef.current?.focus();
           }}
-          className="fixed z-[71] inset-4 md:inset-x-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-full md:max-w-2xl motion-safe:data-[state=open]:animate-in motion-safe:data-[state=open]:fade-in motion-safe:data-[state=open]:zoom-in-95 motion-safe:data-[state=closed]:animate-out motion-safe:data-[state=closed]:fade-out motion-safe:data-[state=closed]:zoom-out-95 duration-250 ease-out"
+          className="fixed z-[71] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 motion-safe:data-[state=open]:animate-in motion-safe:data-[state=open]:fade-in motion-safe:data-[state=open]:zoom-in-95 motion-safe:data-[state=closed]:animate-out motion-safe:data-[state=closed]:fade-out motion-safe:data-[state=closed]:zoom-out-95 duration-250 ease-out"
         >
           <Dialog.Title className="sr-only">Banner promocional</Dialog.Title>
-          <div className="relative aspect-[4/5] md:aspect-[16/10] w-full overflow-hidden rounded-sm bg-ethra-cream">
-            <Link href={href} className="absolute inset-0 block" aria-label={banner.altText}>
-              <Image
+          {/* Sin aspect-ratio fijo: el tamaño lo define la imagen misma (w-fit),
+              acotado a lo sumo al 80% del viewport en cada eje. */}
+          <div className="relative w-fit overflow-hidden rounded-sm bg-ethra-cream">
+            <Link href={href} className="block" aria-label={banner.altText}>
+              {/* eslint-disable-next-line @next/next/no-img-element -- tamaño intrínseco desconocido de antemano (lo define el admin al subir la imagen); next/image exige width/height o un contenedor ya dimensionado. */}
+              <img
                 src={toCdnImageUrl(banner.imageUrl)}
                 alt={banner.altText}
-                fill
-                sizes="(max-width: 768px) 100vw, 42rem"
-                className="object-cover"
-                priority
+                className="block max-h-[80vh] max-w-[80vw]"
               />
             </Link>
             <button
