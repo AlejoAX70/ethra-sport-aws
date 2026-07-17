@@ -1,4 +1,5 @@
 import { storefrontFetch } from "./client";
+import { parseStorefrontBannersResponse } from "./banner-guards";
 import type {
   CatalogQueryParams,
   ContactMessagePayload,
@@ -10,6 +11,7 @@ import type {
   StorefrontProduct,
   StorefrontSearchResponse,
   StorefrontStoreInfo,
+  StorefrontBannersResponse,
 } from "./types";
 
 function toQueryString(params: Record<string, string | number | undefined>): string {
@@ -79,4 +81,9 @@ export function submitContactMessage(payload: ContactMessagePayload) {
     method: 'POST',
     body: JSON.stringify(payload),
   });
+}
+
+export async function getBanners(): Promise<StorefrontBannersResponse> {
+  const raw = await storefrontFetch<unknown>("/banners");
+  return parseStorefrontBannersResponse(raw);
 }

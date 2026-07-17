@@ -5,6 +5,7 @@ import {
   getCategoryProducts,
   getProduct,
   getStoreInfo,
+  getBanners,
   searchCatalog,
 } from "./api";
 import { getPaymentStatusAction } from "./actions";
@@ -22,6 +23,7 @@ export const storefrontKeys = {
   product: (id: string) => [...storefrontKeys.all, "product", id] as const,
   search: (q: string, limit: number) => [...storefrontKeys.all, "search", q, limit] as const,
   storeInfo: () => [...storefrontKeys.all, "store-info"] as const,
+  banners: () => [...storefrontKeys.all, "banners"] as const,
   paymentStatus: (reference: string) =>
     [...storefrontKeys.all, "payment-status", reference] as const,
 };
@@ -77,6 +79,13 @@ export const storeInfoQueryOptions = () =>
     queryFn: getStoreInfo,
     staleTime: 120_000,
     retry: false,
+  });
+
+export const bannersQueryOptions = () =>
+  queryOptions({
+    queryKey: storefrontKeys.banners(),
+    queryFn: getBanners,
+    staleTime: 60_000,
   });
 
 const FINAL_PAYMENT_STATUSES = new Set(["APPROVED", "DECLINED", "ERROR", "VOIDED", "REFUNDED"]);

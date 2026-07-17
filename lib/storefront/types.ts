@@ -154,3 +154,18 @@ export interface ContactMessagePayload {
   subject: string;
   message: string;
 }
+
+export interface StorefrontBanner {
+  id: string;
+  bannerType: "MODAL" | "PERSISTENT";
+  imageUrl: string;
+  altText: string;
+  linkType: "PRODUCT" | "CATEGORY";
+  productId?: string;
+  categoryId?: string;
+}
+
+export interface StorefrontBannersResponse {
+  modal?: StorefrontBanner;
+  persistent?: StorefrontBanner;
+}

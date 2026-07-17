@@ -53,11 +53,14 @@ export function Navbar({ menuItems }: NavbarProps) {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        scrolled ? "bg-ethra-bone/95 backdrop-blur-sm shadow-sm" : "bg-transparent"
-      }`}
+      className="fixed left-0 right-0 z-50 transition-all duration-500"
+      style={{ top: "var(--ethra-banner-offset, 0px)" }}
     >
-      <nav className="mx-auto flex max-w-[1400px] items-center justify-between px-6 md:px-10 h-16 md:h-20">
+      <nav
+        className={`mx-auto flex max-w-[1400px] items-center justify-between px-6 md:px-10 h-16 md:h-20 transition-all duration-500 ${
+          scrolled ? "bg-ethra-bone/95 backdrop-blur-sm shadow-sm" : "bg-transparent"
+        }`}
+      >
         <Link
           href="/"
           className="inline-flex shrink-0 items-center transition-opacity duration-300 hover:opacity-90"

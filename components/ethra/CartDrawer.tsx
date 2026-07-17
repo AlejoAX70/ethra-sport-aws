@@ -218,9 +218,9 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
         shouldScaleBackground
       >
         <Drawer.Portal>
-          <Drawer.Overlay className="fixed inset-0 z-60 bg-ethra-black/30 backdrop-blur-[2px]" />
+          <Drawer.Overlay className="fixed inset-0 z-[60] bg-ethra-black/30 backdrop-blur-[2px]" />
           <Drawer.Content
-            className="cart-drawer-mobile fixed inset-x-0 bottom-0 z-61 flex max-h-[85dvh] flex-col rounded-t-lg bg-ethra-bone outline-none"
+            className="cart-drawer-mobile fixed inset-x-0 bottom-0 z-[61] flex max-h-[85dvh] flex-col rounded-t-lg bg-ethra-bone outline-none"
             aria-describedby={undefined}
           >
             <Drawer.Title className="sr-only">Bolsa de compras</Drawer.Title>
@@ -238,9 +238,9 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="cart-drawer-overlay fixed inset-0 z-60 bg-ethra-black/30 backdrop-blur-[2px]" />
+        <Dialog.Overlay className="cart-drawer-overlay fixed inset-0 z-[60] bg-ethra-black/30 backdrop-blur-[2px]" />
         <Dialog.Content
-          className="cart-drawer-panel fixed right-0 top-0 z-61 flex h-dvh w-full max-w-[480px] flex-col bg-ethra-bone shadow-none outline-none focus:outline-none"
+          className="cart-drawer-panel fixed right-0 top-0 z-[61] flex h-dvh w-full max-w-[480px] flex-col bg-ethra-bone shadow-none outline-none focus:outline-none"
           aria-describedby={undefined}
           onOpenAutoFocus={(e) => {
             e.preventDefault();

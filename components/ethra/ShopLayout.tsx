@@ -11,7 +11,9 @@ export function ShopLayout({ children, padTop = true }: ShopLayoutProps) {
   return (
     <div className="bg-ethra-bone min-h-screen">
       <Navbar />
-      <main className={padTop ? "pt-20" : ""}>{children}</main>
+      <main className={padTop ? "pt-[calc(5rem+var(--ethra-banner-offset,0px))] md:pt-[calc(6rem+var(--ethra-banner-offset,0px))]" : ""}>
+        {children}
+      </main>
       <Footer />
     </div>
   );

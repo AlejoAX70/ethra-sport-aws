@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { ETHRA_BRAND } from "@/lib/brand";
 import { getCmsConfig } from "@/lib/cms/api";
 import { CartProvider } from "@/store/cart";
+import { BannerVisibilityProvider } from "@/store/banner-visibility";
 import { QueryProvider } from "@/components/providers/QueryProvider";
+import { SiteBanners } from "@/components/ethra/SiteBanners";
 import { EthraToaster } from "@/components/ethra/EthraToaster";
 import "./globals.css";
 
@@ -47,10 +49,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <QueryProvider>
-          <CartProvider>
-            {children}
-            <EthraToaster />
-          </CartProvider>
+          <BannerVisibilityProvider>
+            <SiteBanners />
+            <CartProvider>
+              {children}
+              <EthraToaster />
+            </CartProvider>
+          </BannerVisibilityProvider>
         </QueryProvider>
       </body>
     </html>
