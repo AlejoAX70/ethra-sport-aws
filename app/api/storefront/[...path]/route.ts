@@ -108,7 +108,21 @@ async function proxyStorefrontRequest(
       if (bodyBytes.byteLength > 0) body = Buffer.from(bodyBytes);
     }
 
+    // DEBUG TEMPORAL — diagnóstico de la pérdida de X-Tenant-Key en Amplify, remover tras usar.
+    console.log("[storefront proxy][debug]", {
+      storefrontUrl,
+      method,
+      outHeaderKeys: Object.keys(outHeaders),
+      tenantKeyLen: tenantKey.length,
+      tenantKeyPrefix: tenantKey.slice(0, 6),
+    });
+
     let result = await forwardRequest(storefrontUrl, { method, headers: outHeaders, body });
+
+    console.log("[storefront proxy][debug] response", {
+      status: result.status,
+      bodyPreview: result.body.toString("utf8").slice(0, 200),
+    });
 
     // Redirect manual (API Gateway a veces normaliza rutas) — reenviar preservando método/headers/body.
     if (result.status >= 300 && result.status < 400) {
