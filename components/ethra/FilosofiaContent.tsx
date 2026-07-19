@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { ShopLayout } from "@/components/ethra/ShopLayout";
 import { IMAGE_CDN_BASE } from "@/lib/cdn";
+import type { EmphasisSplit, FilosofiaContent as FilosofiaContentData } from "@/lib/cms/filosofia-content";
 
 const HERO_IMAGE = `${IMAGE_CDN_BASE}/proveedores/4c39cb9b-109b-4000-93d1-08ecd15073b0/temporales/9ed8075b-3d9e-46e1-b98d-df16b24c54c9.webp`;
 const FIRST_EDITORIAL_IMAGE = `${IMAGE_CDN_BASE}/proveedores/4c39cb9b-109b-4000-93d1-08ecd15073b0/temporales/b7e21df6-bffb-438a-a3e9-47ba94b153d3.webp`;
@@ -102,9 +103,110 @@ function EditorialImage({
   );
 }
 
+/** Renderiza un texto con su cola en cursiva dorada (ver splitEmphasisTail). */
+function Emphasis({ split, tailClassName = "italic" }: { split?: EmphasisSplit; tailClassName?: string }) {
+  if (!split) return null;
+  return (
+    <>
+      {split.lead}
+      {split.tail && (
+        <>
+          {" "}
+          <span className={tailClassName} style={{ color: "oklch(0.55 0.100 80)" }}>
+            {split.tail}
+          </span>
+        </>
+      )}
+    </>
+  );
+}
+
+/** Grid editorial de imagenes: 1 = ancho completo, 2 = dos columnas, 3+ = tres columnas. */
+function EditorialGallery({ images }: { images: Array<{ url: string; alt: string }> }) {
+  if (images.length === 0) return null;
+  const colsClass = images.length >= 3 ? "sm:grid-cols-3" : images.length === 2 ? "md:grid-cols-2" : "";
+  return (
+    <section className="bg-ethra-bone pb-24 md:pb-32">
+      <div className={`mx-auto grid max-w-[1400px] grid-cols-1 gap-[3px] px-3 md:px-6 lg:px-10 ${colsClass}`}>
+        {images.map((img, i) => (
+          <EditorialImage key={i} src={img.url} alt={img.alt} className="min-h-[380px] bg-ethra-cream" eager={i === 0} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
 /* ─── Main component ─────────────────────────────────────── */
 
-export function FilosofiaContent() {
+interface FilosofiaContentProps {
+  content?: FilosofiaContentData;
+}
+
+export function FilosofiaContent({ content }: FilosofiaContentProps) {
+  const heroHeading = content?.hero?.heading ?? { lead: "Donde el movimiento", tail: "se vuelve refugio" };
+  const heroSubtitle = content?.hero?.subtitle ?? "Diseñado para mujeres que eligen sentir, no solo vestir";
+  const heroImage = content?.hero?.imageUrl ?? HERO_IMAGE;
+
+  const sectionIQuote = content?.sectionI?.quote ?? {
+    lead: "El cuerpo de una mujer no necesita adornos que la limiten,",
+    tail: "sino piezas que la acompañen.",
+  };
+  const sectionIParagraphs = content?.sectionI?.paragraphs?.length
+    ? content.sectionI.paragraphs
+    : [
+        "Ethra Sport nace de una convicción simple y profunda: el cuerpo de una mujer no necesita adornos que la limiten, sino piezas que la acompañen con respeto, suavidad y fuerza.",
+        "Cada prenda es un gesto de cuidado. Un espacio donde la piel respira, la silueta se honra y el movimiento recupera su lugar como ritual cotidiano — no como exigencia.",
+      ];
+
+  const galleries = content?.galleries?.length
+    ? content.galleries
+    : [
+        { images: [
+            { url: FIRST_EDITORIAL_IMAGE, alt: "Texturas y esencia de la marca Ethra" },
+            { url: SECOND_EDITORIAL_IMAGE, alt: "Ritual de movimiento consciente" },
+            { url: THIRD_EDITORIAL_IMAGE, alt: "Arquitectura del cuerpo en movimiento" },
+          ] },
+        { images: [
+            { url: FOURTH_EDITORIAL_IMAGE, alt: "Detalle artesanal de confección" },
+            { url: FIFTH_EDITORIAL_IMAGE, alt: "Movimiento y libertad" },
+          ] },
+        { images: [
+            { url: SEVENTH_EDITORIAL_IMAGE, alt: "Luz y calma" },
+            { url: EIGHTH_EDITORIAL_IMAGE, alt: "Mujeres en comunidad" },
+            { url: NINTH_EDITORIAL_IMAGE, alt: "Detalle de silueta femenina" },
+          ] },
+      ];
+
+  const sectionIIQuote = content?.sectionII?.quote ?? "\"La elegancia no es llamar la atención, es que te recuerden.\"";
+  const sectionIIParagraphs = content?.sectionII?.paragraphs?.length
+    ? content.sectionII.paragraphs
+    : [
+        "En nuestro universo, la moda deportiva deja de ser uniforme para convertirse en expresión. Tejidos que abrazan sin apretar. Cortes que siguen tu respiración. Colores que evocan calma, tierra y luz — porque sentirte bien también es una forma de elegancia.",
+        "Creemos en la mujer que se mueve a su ritmo: la que entrena, camina, descansa y vuelve a empezar. La que no busca perfección, sino presencia.",
+      ];
+
+  const darkQuote = content?.darkQuote?.quote ?? { lead: "Vestirte bien es recordarte que mereces espacio, tiempo", tail: "y ternura." };
+  const darkCite = content?.darkQuote?.cite ?? "Manifiesto Ethra Sport";
+  const darkImage = content?.darkQuote?.imageUrl ?? SIXTH_EDITORIAL_IMAGE;
+
+  const sectionIIIQuote = content?.sectionIII?.quote ?? {
+    lead: "Lo verdadero lujo no es lo que se muestra:",
+    tail: "es lo que te hace sentir en casa contigo misma.",
+  };
+  const sectionIIIParagraphs = content?.sectionIII?.paragraphs?.length
+    ? content.sectionIII.paragraphs
+    : [
+        "Nuestro taller no persigue tendencias efímeras. Observa el cuerpo, escucha sus cambios y diseña piezas que permanecen — en el armario y en la memoria. Porque lo verdadero lujo no es lo que se muestra: es lo que te hace sentir en casa contigo misma.",
+      ];
+
+  const closingHeading = content?.closingCta?.heading ?? { lead: "Esta es nuestra manera", tail: "de acompañarte" };
+  const closingBody = content?.closingCta?.body ??
+    "Ethra Sport no te pide que cambies. Te invita a reconocerte: fuerte, sensible, en constante transformación. Y a elegir, cada día, la belleza de moverte con intención.";
+  const closingPrimaryLabel = content?.closingCta?.primaryLabel ?? "Explorar colecciones";
+  const closingPrimaryUrl = content?.closingCta?.primaryUrl ?? "/colecciones";
+  const closingSecondaryLabel = content?.closingCta?.secondaryLabel ?? "Ver catálogo";
+  const closingSecondaryUrl = content?.closingCta?.secondaryUrl ?? "/catalogo";
+
   return (
     <ShopLayout padTop={false}>
       {/* ══════════════════════════════════════════════════════
@@ -113,7 +215,7 @@ export function FilosofiaContent() {
       <section className="relative w-full overflow-hidden" style={{ minHeight: "95vh" }}>
         {/* Background image */}
         <img
-          src={HERO_IMAGE}
+          src={heroImage}
           alt="Mujer en movimiento con piezas Ethra Sport"
           className="absolute inset-0 h-full w-full object-cover"
           fetchPriority="high"
@@ -165,20 +267,22 @@ export function FilosofiaContent() {
               className="font-serif leading-[1.05] text-ethra-bone"
               style={{ fontSize: "clamp(2.6rem, 6vw, 5.5rem)" }}
             >
-              Donde el movimiento
-              <span
-                className="block italic font-normal"
-                style={{ color: "oklch(0.78 0.085 80)" }}
-              >
-                se vuelve refugio
-              </span>
+              {heroHeading.lead}
+              {heroHeading.tail && (
+                <span
+                  className="block italic font-normal"
+                  style={{ color: "oklch(0.78 0.085 80)" }}
+                >
+                  {heroHeading.tail}
+                </span>
+              )}
             </h1>
 
             <p
               className="mt-6 font-display text-[10px] tracking-[0.28em] uppercase"
               style={{ color: "oklch(0.965 0.005 85 / 0.55)" }}
             >
-              Diseñado para mujeres que eligen sentir, no solo vestir
+              {heroSubtitle}
             </p>
 
             {/* Scroll cue */}
@@ -204,46 +308,21 @@ export function FilosofiaContent() {
           <div className="grid md:grid-cols-2 md:gap-20 items-start">
             <motion.div {...fadeUp}>
               <p className="font-serif text-3xl md:text-4xl leading-tight text-ethra-black mb-8">
-                El cuerpo de una mujer no necesita adornos que la limiten,{" "}
-                <span className="italic" style={{ color: "oklch(0.55 0.100 80)" }}>
-                  sino piezas que la acompañen.
-                </span>
+                <Emphasis split={sectionIQuote} />
               </p>
             </motion.div>
 
             <motion.div {...fadeUp} className="space-y-5 text-[15px] leading-[1.95] text-ethra-charcoal md:pt-2">
-              <p>
-                Ethra Sport nace de una convicción simple y profunda: el cuerpo de una mujer no necesita adornos que la limiten, sino piezas que la acompañen con respeto, suavidad y fuerza.
-              </p>
-              <p>
-                Cada prenda es un gesto de cuidado. Un espacio donde la piel respira, la silueta se honra y el movimiento recupera su lugar como ritual cotidiano — no como exigencia.
-              </p>
+              {sectionIParagraphs.map((p, i) => (
+                <p key={i}>{p}</p>
+              ))}
             </motion.div>
           </div>
         </div>
       </section>
 
       {/* ── Editorial grid 1 ── */}
-      <section className="bg-ethra-bone pb-24 md:pb-32">
-        <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-[3px] px-3 md:grid-cols-2 md:px-6 lg:px-10">
-          <EditorialImage
-            src={FIRST_EDITORIAL_IMAGE}
-            alt="Texturas y esencia de la marca Ethra"
-            className="min-h-[520px] md:row-span-2 md:min-h-[760px] bg-ethra-cream"
-            eager
-          />
-          <EditorialImage
-            src={SECOND_EDITORIAL_IMAGE}
-            alt="Ritual de movimiento consciente"
-            className="min-h-[280px] md:min-h-[376px] bg-ethra-cream"
-          />
-          <EditorialImage
-            src={THIRD_EDITORIAL_IMAGE}
-            alt="Arquitectura del cuerpo en movimiento"
-            className="min-h-[280px] md:min-h-[376px] bg-ethra-cream"
-          />
-        </div>
-      </section>
+      <EditorialGallery images={galleries[0]?.images ?? []} />
 
       {/* ══════════════════════════════════════════════════════
           II — Expresión
@@ -256,17 +335,14 @@ export function FilosofiaContent() {
 
           <div className="grid md:grid-cols-2 md:gap-20 items-start">
             <motion.div {...fadeUp} className="space-y-5 text-[15px] leading-[1.95] text-ethra-charcoal">
-              <p>
-                En nuestro universo, la moda deportiva deja de ser uniforme para convertirse en expresión. Tejidos que abrazan sin apretar. Cortes que siguen tu respiración. Colores que evocan calma, tierra y luz — porque sentirte bien también es una forma de elegancia.
-              </p>
-              <p>
-                Creemos en la mujer que se mueve a su ritmo: la que entrena, camina, descansa y vuelve a empezar. La que no busca perfección, sino presencia.
-              </p>
+              {sectionIIParagraphs.map((p, i) => (
+                <p key={i}>{p}</p>
+              ))}
             </motion.div>
 
             <motion.div {...fadeUp}>
               <p className="font-serif text-2xl md:text-3xl leading-snug text-ethra-black italic">
-                "La elegancia no es llamar la atención, es que te recuerden."
+                {sectionIIQuote}
               </p>
               <div
                 className="mt-6 h-px"
@@ -279,12 +355,7 @@ export function FilosofiaContent() {
       </section>
 
       {/* ── Editorial grid 2 ── */}
-      <section className="bg-ethra-bone pb-0 md:pb-0">
-        <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-[3px] px-3 md:grid-cols-2 md:px-6 lg:px-10">
-          <EditorialImage src={FOURTH_EDITORIAL_IMAGE} alt="Detalle artesanal de confección" className="min-h-[460px] bg-ethra-cream" />
-          <EditorialImage src={FIFTH_EDITORIAL_IMAGE} alt="Movimiento y libertad" className="min-h-[460px] bg-ethra-cream" />
-        </div>
-      </section>
+      <EditorialGallery images={galleries[1]?.images ?? []} />
 
       {/* ══════════════════════════════════════════════════════
           DARK QUOTE SECTION — Full atmosphere
@@ -296,7 +367,7 @@ export function FilosofiaContent() {
         {/* Background image at low opacity */}
         <div className="absolute inset-0">
           <img
-            src={SIXTH_EDITORIAL_IMAGE}
+            src={darkImage}
             alt=""
             aria-hidden
             loading="lazy"
@@ -333,13 +404,15 @@ export function FilosofiaContent() {
             </div>
 
             <blockquote className="font-serif text-2xl md:text-4xl lg:text-5xl leading-snug text-ethra-bone mt-6">
-              Vestirte bien es recordarte que mereces espacio, tiempo
-              <span
-                className="block italic font-normal mt-2"
-                style={{ color: "oklch(0.78 0.085 80)" }}
-              >
-                y ternura.
-              </span>
+              {darkQuote.lead}
+              {darkQuote.tail && (
+                <span
+                  className="block italic font-normal mt-2"
+                  style={{ color: "oklch(0.78 0.085 80)" }}
+                >
+                  {darkQuote.tail}
+                </span>
+              )}
             </blockquote>
 
             <div className="mt-10 mb-6">
@@ -350,7 +423,7 @@ export function FilosofiaContent() {
               className="not-italic font-display text-[9px] tracking-[0.38em] uppercase"
               style={{ color: "oklch(0.965 0.005 85 / 0.40)" }}
             >
-              Manifiesto Ethra Sport
+              {darkCite}
             </cite>
           </motion.div>
         </div>
@@ -368,30 +441,26 @@ export function FilosofiaContent() {
           <div className="grid md:grid-cols-2 md:gap-20 items-start">
             <motion.div {...fadeUp}>
               <p className="font-serif text-3xl md:text-4xl leading-tight text-ethra-black mb-8">
-                Lo verdadero lujo no es lo que se muestra:
-                <span className="block italic" style={{ color: "oklch(0.55 0.100 80)" }}>
-                  es lo que te hace sentir en casa contigo misma.
-                </span>
+                {sectionIIIQuote.lead}
+                {sectionIIIQuote.tail && (
+                  <span className="block italic" style={{ color: "oklch(0.55 0.100 80)" }}>
+                    {sectionIIIQuote.tail}
+                  </span>
+                )}
               </p>
             </motion.div>
 
             <motion.div {...fadeUp} className="space-y-5 text-[15px] leading-[1.95] text-ethra-charcoal md:pt-2">
-              <p>
-                Nuestro taller no persigue tendencias efímeras. Observa el cuerpo, escucha sus cambios y diseña piezas que permanecen — en el armario y en la memoria. Porque lo verdadero lujo no es lo que se muestra: es lo que te hace sentir en casa contigo misma.
-              </p>
+              {sectionIIIParagraphs.map((p, i) => (
+                <p key={i}>{p}</p>
+              ))}
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* ── Editorial grid 3 (three images) ── */}
-      <section className="bg-ethra-bone pb-0">
-        <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-[3px] px-3 sm:grid-cols-3 md:px-6 lg:px-10">
-          <EditorialImage src={SEVENTH_EDITORIAL_IMAGE} alt="Luz y calma" className="min-h-[380px] bg-ethra-cream" />
-          <EditorialImage src={EIGHTH_EDITORIAL_IMAGE} alt="Mujeres en comunidad" className="min-h-[380px] bg-ethra-cream" />
-          <EditorialImage src={NINTH_EDITORIAL_IMAGE} alt="Detalle de silueta femenina" className="min-h-[380px] bg-ethra-cream" />
-        </div>
-      </section>
+      {/* ── Editorial grid 3 ── */}
+      <EditorialGallery images={galleries[2]?.images ?? []} />
 
       {/* ══════════════════════════════════════════════════════
           CLOSING CTA — Dark, premium
@@ -429,13 +498,15 @@ export function FilosofiaContent() {
           </p>
 
           <h2 className="font-serif text-3xl md:text-5xl leading-tight text-ethra-bone mb-8">
-            Esta es nuestra manera
-            <span
-              className="block italic font-normal"
-              style={{ color: "oklch(0.78 0.085 80)" }}
-            >
-              de acompañarte
-            </span>
+            {closingHeading.lead}
+            {closingHeading.tail && (
+              <span
+                className="block italic font-normal"
+                style={{ color: "oklch(0.78 0.085 80)" }}
+              >
+                {closingHeading.tail}
+              </span>
+            )}
           </h2>
 
           {/* Gold separator */}
@@ -449,13 +520,13 @@ export function FilosofiaContent() {
             className="text-[15px] leading-[1.9] mb-12 max-w-xl mx-auto"
             style={{ color: "oklch(0.965 0.005 85 / 0.62)" }}
           >
-            Ethra Sport no te pide que cambies. Te invita a reconocerte: fuerte, sensible, en constante transformación. Y a elegir, cada día, la belleza de moverte con intención.
+            {closingBody}
           </p>
 
           {/* CTAs */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              href="/colecciones"
+              href={closingPrimaryUrl}
               className="inline-block px-10 py-4 font-display text-[10px] tracking-luxury uppercase transition-all duration-300"
               style={{
                 border: "1px solid oklch(0.66 0.105 80 / 0.50)",
@@ -470,11 +541,11 @@ export function FilosofiaContent() {
                 (e.currentTarget as HTMLAnchorElement).style.color = "oklch(0.78 0.085 80)";
               }}
             >
-              Explorar colecciones
+              {closingPrimaryLabel}
             </Link>
 
             <Link
-              href="/catalogo"
+              href={closingSecondaryUrl}
               className="inline-block px-10 py-4 font-display text-[10px] tracking-luxury uppercase transition-all duration-300"
               style={{
                 border: "1px solid oklch(0.965 0.005 85 / 0.15)",
@@ -489,7 +560,7 @@ export function FilosofiaContent() {
                 (e.currentTarget as HTMLAnchorElement).style.color = "oklch(0.965 0.005 85 / 0.55)";
               }}
             >
-              Ver catálogo
+              {closingSecondaryLabel}
             </Link>
           </div>
         </motion.div>
