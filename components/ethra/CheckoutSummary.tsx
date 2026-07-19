@@ -18,7 +18,7 @@ export function CheckoutSummary({ className = "", showEditLink = true }: Checkou
 
   return (
     <aside
-      className={`border border-ethra-stone/15 bg-ethra-cream/50 p-6 lg:sticky lg:top-6 lg:self-start ${className}`}
+      className={`border border-ethra-stone/15 bg-ethra-cream/50 p-6 lg:sticky lg:top-[calc(6rem+var(--ethra-banner-offset,0px))] lg:self-start ${className}`}
     >
       <h2 className="font-display text-[11px] uppercase tracking-luxury text-ethra-charcoal">
         Tu bolsa ({itemCount} {itemCount === 1 ? "artículo" : "artículos"})

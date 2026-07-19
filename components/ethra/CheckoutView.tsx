@@ -134,7 +134,7 @@ export function CheckoutView() {
   return (
     <div className="mx-auto max-w-5xl px-6 py-12">
       {/* Mobile: resumen colapsable sticky */}
-      <div className="sticky top-0 z-10 -mx-6 border-b border-ethra-stone/15 bg-ethra-bone px-6 lg:hidden">
+      <div className="sticky top-[calc(5rem+var(--ethra-banner-offset,0px))] md:top-[calc(6rem+var(--ethra-banner-offset,0px))] z-10 -mx-6 border-b border-ethra-stone/15 bg-ethra-bone px-6 lg:hidden">
         <button
           type="button"
           onClick={() => setIsSummaryExpanded((prev) => !prev)}
