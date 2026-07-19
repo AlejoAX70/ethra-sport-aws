@@ -14,6 +14,7 @@ export interface CmsPageResponse {
   sections: Array<{
     id: string;
     section_type: string;
+    label: string | null;
     content: Record<string, unknown>;
     display_order: number;
   }>;

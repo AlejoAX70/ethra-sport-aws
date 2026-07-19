@@ -10,6 +10,7 @@ import { Footer } from "@/components/ethra/Footer";
 import { getCategories, getCatalog } from "@/lib/storefront/api";
 import { getCmsPage, getCmsConfig, getCmsMenu } from "@/lib/cms/api";
 import { findSectionContent } from "@/lib/cms/section-registry";
+import { extractManifestoContent, extractEditorialContent } from "@/lib/cms/home-content";
 import { CmsApiError } from "@/lib/cms/client";
 
 /** Datos frescos del API en cada visita */
@@ -53,6 +54,8 @@ export default async function HomePage() {
   const sections = cmsPage?.sections ?? [];
   const heroContent = findSectionContent(sections, "HERO");
   const testimonialsContent = findSectionContent(sections, "TESTIMONIALS");
+  const manifestoContent = extractManifestoContent(sections);
+  const editorialContent = extractEditorialContent(sections);
 
   const navItems = mainMenu?.items.map((i) => ({ label: i.label, href: i.url }));
   const footerLinks = footerMenu?.items.map((i) => ({ label: i.label, href: i.url }));
@@ -66,13 +69,13 @@ export default async function HomePage() {
         <Hero content={heroContent} />
 
         {/* 2. Manifiesto — sección oscura con cita editorial */}
-        <HomeManifesto />
+        <HomeManifesto content={manifestoContent} />
 
         {/* 3. Colecciones — carrusel editorial */}
         <CategoryGrid categories={categoriesRes.categories} />
 
-        {/* 4. Split editorial — hardcoded por ahora */}
-        <HomeEditorial />
+        {/* 4. Split editorial */}
+        <HomeEditorial content={editorialContent} />
 
         {/* 5. Nuevas formas — grid de productos */}
         <NuevasFormas products={catalogRes.products} />

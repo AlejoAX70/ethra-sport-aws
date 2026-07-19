@@ -3,11 +3,24 @@
 import Link from "next/link";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { IMAGE_CDN_BASE } from "@/lib/cdn";
+import type { EditorialContent } from "@/lib/cms/home-content";
 
 const EDITORIAL_IMAGE = `${IMAGE_CDN_BASE}/proveedores/4c39cb9b-109b-4000-93d1-08ecd15073b0/productos/26392545-8d5a-4d60-8c2a-343c92cc5f90/tercera.webp`;
 
-export function HomeEditorial() {
+interface HomeEditorialProps {
+  content?: EditorialContent;
+}
+
+export function HomeEditorial({ content }: HomeEditorialProps) {
   const textRef = useScrollReveal({ threshold: 0.1 });
+
+  const image = content?.imageUrl ?? EDITORIAL_IMAGE;
+  const headingLine1 = content?.headingLine1 ?? "Donde el deporte";
+  const headingLine2 = content?.headingLine2 ?? "encuentra el arte";
+  const body = content?.body ??
+    "Cada colección es el resultado de un proceso creativo donde la funcionalidad técnica se funde con una estética editorial rigurosa. No hacemos ropa deportiva. Creamos piezas que trascienden el movimiento.";
+  const ctaLabel = content?.ctaLabel ?? "Ver catálogo completo";
+  const ctaUrl = content?.ctaUrl ?? "/catalogo";
 
   return (
     <section
@@ -18,7 +31,7 @@ export function HomeEditorial() {
         {/* Image side */}
         <div className="relative w-full md:w-[52%] min-h-[55vw] md:min-h-0 overflow-hidden">
           <img
-            src={EDITORIAL_IMAGE}
+            src={image}
             alt="Ethra Sport — Editorial"
             loading="lazy"
             className="absolute inset-0 h-full w-full object-cover transition-transform duration-[2000ms] ease-out hover:scale-[1.04]"
@@ -64,13 +77,13 @@ export function HomeEditorial() {
             className="font-serif text-4xl md:text-5xl lg:text-[3.4rem] leading-tight mb-8"
             style={{ color: "oklch(0.965 0.005 85)" }}
           >
-            Donde el deporte
+            {headingLine1}
             <br />
             <span
               className="italic font-light"
               style={{ color: "oklch(0.78 0.085 80 / 0.82)" }}
             >
-              encuentra el arte
+              {headingLine2}
             </span>
           </h2>
 
@@ -79,10 +92,7 @@ export function HomeEditorial() {
             className="font-light text-sm leading-loose mb-12 max-w-sm"
             style={{ color: "oklch(0.965 0.005 85 / 0.48)" }}
           >
-            Cada colección es el resultado de un proceso creativo donde la
-            funcionalidad técnica se funde con una estética editorial rigurosa.
-            No hacemos ropa deportiva. Creamos piezas que trascienden el
-            movimiento.
+            {body}
           </p>
 
           {/* Gold rule */}
@@ -94,7 +104,7 @@ export function HomeEditorial() {
 
           {/* CTA text link */}
           <Link
-            href="/catalogo"
+            href={ctaUrl}
             className="group inline-flex items-center gap-4 font-display text-[9px] tracking-luxury uppercase transition-colors duration-300 w-fit"
             style={{ color: "oklch(0.965 0.005 85 / 0.55)" }}
             onMouseEnter={(e) => {
@@ -104,7 +114,7 @@ export function HomeEditorial() {
               (e.currentTarget as HTMLAnchorElement).style.color = "oklch(0.965 0.005 85 / 0.55)";
             }}
           >
-            Ver catálogo completo
+            {ctaLabel}
             <span
               className="block h-px transition-all duration-500 ease-out group-hover:w-16"
               style={{
