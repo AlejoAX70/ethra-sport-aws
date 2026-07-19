@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ProductCardGallery } from "./ProductCardGallery";
 import { DiscountBadge } from "./DiscountBadge";
+import { SoldOutRibbon } from "./SoldOutRibbon";
 import {
   formatStorefrontPrice,
   getEffectiveOriginalPrice,
@@ -37,6 +38,7 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
               <DiscountBadge label={badge} />
             </div>
           ) : null}
+          {!product.inStock ? <SoldOutRibbon /> : null}
         </div>
 
         <div className="mt-5">

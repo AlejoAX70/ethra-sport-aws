@@ -9,6 +9,7 @@ import {
 } from "@/lib/storefront/format";
 import { ProductCardGallery } from "./ProductCardGallery";
 import { DiscountBadge } from "./DiscountBadge";
+import { SoldOutRibbon } from "./SoldOutRibbon";
 
 interface CatalogGridProductCardProps {
   product: StorefrontProduct;
@@ -35,6 +36,7 @@ export function CatalogGridProductCard({ product }: CatalogGridProductCardProps)
               <DiscountBadge label={badge} />
             </div>
           ) : null}
+          {!product.inStock ? <SoldOutRibbon /> : null}
         </div>
 
         <div className="mt-3 px-0.5">
@@ -52,13 +54,6 @@ export function CatalogGridProductCard({ product }: CatalogGridProductCardProps)
           <p className="mt-0.5 min-h-[16px] text-[11px] text-ethra-stone line-through">
             {discounted && originalPrice ? formatCatalogGridPrice(originalPrice) : ""}
           </p>
-
-          {/* Out of stock */}
-          {!product.inStock ? (
-            <p className="mt-1 font-display text-[9px] tracking-luxury uppercase text-ethra-stone">
-              Agotado
-            </p>
-          ) : null}
         </div>
       </Link>
     </article>
