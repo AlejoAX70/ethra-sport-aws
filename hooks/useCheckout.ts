@@ -79,6 +79,11 @@ export function useCheckout(items: CartItem[]) {
     [router],
   );
 
+  const onWidgetAbandoned = useCallback((message: string) => {
+    setError(message);
+    setPhase("error");
+  }, []);
+
   const reset = useCallback(() => {
     setPhase("idle");
     setError(null);
@@ -93,6 +98,7 @@ export function useCheckout(items: CartItem[]) {
     lineErrors,
     submit,
     onWidgetClosed,
+    onWidgetAbandoned,
     reset,
     isSubmitting: phase === "creating_intent" || phase === "widget_open",
   };

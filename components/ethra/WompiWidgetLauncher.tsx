@@ -12,6 +12,18 @@ declare global {
 }
 
 const WOMPI_WIDGET_URL = "https://checkout.wompi.co/widget.js";
+const WOMPI_ORIGIN = "https://checkout.wompi.co";
+
+// El widget de Wompi solo invoca el callback de `checkout.open()` cuando hay
+// una transacción (o tokenización) real. Si el usuario cierra el widget sin
+// pagar (Esc, "volver al comercio", etc.), notifica por postMessage con uno
+// de estos `event` — y nunca llama al callback — dejando la app esperando
+// para siempre si no los escuchamos por nuestra cuenta.
+const WOMPI_ABANDON_EVENTS = new Set([
+  "escpressed",
+  "merchantreturnclicked",
+  "merchantcontinueclicked",
+]);
 
 interface WompiWidgetLauncherProps {
   intent: CreateIntentResponse;
@@ -56,6 +68,7 @@ export function WompiWidgetLauncher({
 }: WompiWidgetLauncherProps) {
   const launched = useRef(false);
   const [loading, setLoading] = useState(true);
+  const settledRef = useRef(false);
 
   useEffect(() => {
     if (launched.current) return;
@@ -95,10 +108,12 @@ export function WompiWidgetLauncher({
         setLoading(false);
         onReady?.();
         checkout.open(() => {
+          settledRef.current = true;
           onComplete(intent.reference);
         });
       } catch (err) {
         if (!cancelled) {
+          settledRef.current = true;
           onError((err as Error)?.message ?? "Error al abrir el widget de pago");
         }
       }
@@ -108,6 +123,22 @@ export function WompiWidgetLauncher({
       cancelled = true;
     };
   }, [intent, customer, onComplete, onError, onReady]);
+
+  useEffect(() => {
+    function handleWompiMessage(event: MessageEvent) {
+      if (event.origin !== WOMPI_ORIGIN) return;
+      if (settledRef.current) return;
+
+      const type = (event.data as { event?: string } | null | undefined)?.event;
+      if (type && WOMPI_ABANDON_EVENTS.has(type)) {
+        settledRef.current = true;
+        onError("Cerraste la ventana de pago antes de completarlo. Puedes intentarlo de nuevo.");
+      }
+    }
+
+    window.addEventListener("message", handleWompiMessage);
+    return () => window.removeEventListener("message", handleWompiMessage);
+  }, [onError]);
 
   if (loading) {
     return null;

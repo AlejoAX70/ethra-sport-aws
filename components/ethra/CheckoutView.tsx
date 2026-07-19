@@ -66,8 +66,17 @@ const labelClass =
 
 export function CheckoutView() {
   const { items, isEmpty, subtotal, currency, itemCount } = useCart();
-  const { phase, error, intent, lineErrors, submit, onWidgetClosed, reset, isSubmitting } =
-    useCheckout(items);
+  const {
+    phase,
+    error,
+    intent,
+    lineErrors,
+    submit,
+    onWidgetClosed,
+    onWidgetAbandoned,
+    reset,
+    isSubmitting,
+  } = useCheckout(items);
   const [isSummaryExpanded, setIsSummaryExpanded] = useState(false);
   const [wompiReady, setWompiReady] = useState(false);
 
@@ -357,7 +366,7 @@ export function CheckoutView() {
                 phone: form.getValues("phone"),
               }}
               onComplete={onWidgetClosed}
-              onError={(msg) => toast.error(msg)}
+              onError={onWidgetAbandoned}
               onReady={() => setWompiReady(true)}
             />
           )}
